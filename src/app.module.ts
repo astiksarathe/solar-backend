@@ -7,6 +7,7 @@ import { ElectricityBillModule } from './electricity-bill/electricity-bill.modul
 import { HttpModule } from '@nestjs/axios';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
+import { ConsumerDataModule } from './consumer-data/consumer-data.module';
 
 @Module({
   imports: [
@@ -25,6 +26,8 @@ import { UserModule } from './user/user.module';
     HttpModule,
     AuthModule,
     UserModule,
+    ConsumerDataModule,
+    ConsumerDataModule,
   ],
   controllers: [AppController],
   providers: [AppService],
