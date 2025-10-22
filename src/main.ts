@@ -17,6 +17,9 @@ async function createNestApp(): Promise<Express> {
 
   const nestApp = await NestFactory.create(AppModule, adapter);
 
+  // Set global prefix (optional, but can help with routing)
+  // nestApp.setGlobalPrefix('api');
+
   // Enable CORS
   nestApp.enableCors({
     origin: true,
@@ -36,9 +39,7 @@ async function createNestApp(): Promise<Express> {
 
   await nestApp.init();
   return server;
-}
-
-// For local development
+} // For local development
 async function bootstrap() {
   const nestApp = await NestFactory.create(AppModule);
 
