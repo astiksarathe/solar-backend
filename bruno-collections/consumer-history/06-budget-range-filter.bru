@@ -1,0 +1,38 @@
+meta {
+  name: 06. Budget Range Filter
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/consumer-history
+  body: none
+  auth: inherit
+}
+
+params:query {
+  minBudget: 400000
+  maxBudget: 800000
+  interestLevel: very_interested,ready_to_buy
+  priority: high
+  page: 1
+  limit: 10
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+}
+
+tests {
+  test("should filter by budget range", function() {
+    expect(res.status).to.equal(200);
+    res.body.data.forEach(function(item) {
+      if (item.estimatedBudget) {
+        expect(item.estimatedBudget).to.be.at.least(400000);
+        expect(item.estimatedBudget).to.be.at.most(800000);
+      }
+      expect(['very_interested', 'ready_to_buy']).to.include(item.interestLevel);
+      expect(item.priority).to.equal('high');
+    });
+  });
+}

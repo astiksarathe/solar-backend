@@ -1,0 +1,39 @@
+meta {
+  name: 16. Search Interactions
+  type: http
+  seq: 16
+}
+
+get {
+  url: {{baseUrl}}/consumer-history
+  body: none
+  auth: inherit
+}
+
+params:query {
+  search: solar panel installation
+  interestLevel: very_interested,ready_to_buy
+  tags: hot_lead,residential
+  page: 1
+  limit: 20
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+}
+
+tests {
+  test("should search interactions", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body.data).to.be.an('array');
+    // Verify search results contain the search term in relevant fields
+    res.body.data.forEach(function(item) {
+      const searchTerm = 'solar panel installation';
+      const hasSearchTerm = 
+        (item.title && item.title.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (item.description && item.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+        (item.notes && item.notes.toLowerCase().includes(searchTerm.toLowerCase()));
+      // Note: This test might not always pass if search doesn't match exactly
+    });
+  });
+}

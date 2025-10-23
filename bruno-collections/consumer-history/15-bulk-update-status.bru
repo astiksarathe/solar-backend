@@ -1,0 +1,39 @@
+meta {
+  name: 15. Bulk Update Status
+  type: http
+  seq: 15
+}
+
+patch {
+  url: {{baseUrl}}/consumer-history/bulk-update
+  body: json
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "ids": [
+      "675b8e5a1234567890abcdef",
+      "675b8e5a1234567890abcde0",
+      "675b8e5a1234567890abcde1"
+    ],
+    "status": "completed",
+    "updatedBy": "675b8e5a1234567890abcd01",
+    "notes": "Bulk completed after successful campaign"
+  }
+}
+
+tests {
+  test("should bulk update status", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body).to.have.property('updated');
+    expect(res.body).to.have.property('errors');
+    expect(res.body.updated).to.be.a('number');
+    expect(res.body.errors).to.be.an('array');
+  });
+}

@@ -1,0 +1,35 @@
+meta {
+  name: 04. Update Consumer History
+  type: http
+  seq: 4
+}
+
+patch {
+  url: {{baseUrl}}/consumer-history/675b8e5a1234567890abcdef
+  body: json
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "status": "completed",
+    "completedDate": "2024-12-01T10:30:00Z",
+    "notes": "Updated: Customer confirmed interest and requested detailed quotation",
+    "outcome": "successful",
+    "nextFollowUp": "2024-12-05T10:00:00Z"
+  }
+}
+
+tests {
+  test("should update consumer history", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body).to.have.property('_id');
+    expect(res.body.status).to.equal('completed');
+    expect(res.body.outcome).to.equal('successful');
+  });
+}

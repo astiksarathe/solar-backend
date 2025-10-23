@@ -22,11 +22,19 @@ export class ConsumerHistory {
       'follow_up',
       'quote_sent',
       'proposal_sent',
+      'survey',
+      'installation_visit',
+      'maintenance',
+      'complaint',
+      'payment_follow_up',
     ],
   })
   interactionType: string;
 
-  @Prop({ enum: ['pending', 'completed', 'cancelled', 'rescheduled'], default: 'pending' })
+  @Prop({
+    enum: ['pending', 'completed', 'cancelled', 'rescheduled'],
+    default: 'pending',
+  })
   status: string;
 
   @Prop({ required: true })
@@ -62,11 +70,14 @@ export class ConsumerHistory {
   @Prop({
     enum: [
       'not_interested',
+      'low_interest',
       'interested',
       'very_interested',
       'ready_to_buy',
       'needs_time',
       'price_negotiation',
+      'comparing_options',
+      'budget_constraints',
     ],
   })
   interestLevel?: string;
@@ -95,6 +106,28 @@ export class ConsumerHistory {
   @Prop({ type: Object })
   customFields?: Record<string, any>;
 
+  @Prop({
+    enum: ['low', 'medium', 'high', 'urgent'],
+    default: 'medium',
+  })
+  priority?: string;
+
+  @Prop({
+    enum: [
+      'successful',
+      'needs_follow_up',
+      'rejected',
+      'postponed',
+      'converted',
+      'no_response',
+      'information_gathering',
+    ],
+  })
+  outcome?: string;
+
+  @Prop([String])
+  tags?: string[];
+
   @Prop({ default: Date.now })
   createdAt: Date;
 
@@ -102,4 +135,5 @@ export class ConsumerHistory {
   updatedAt: Date;
 }
 
-export const ConsumerHistorySchema = SchemaFactory.createForClass(ConsumerHistory);
+export const ConsumerHistorySchema =
+  SchemaFactory.createForClass(ConsumerHistory);
