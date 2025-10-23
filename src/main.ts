@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import express, { Express } from 'express';
 import { Request, Response } from 'express';
@@ -60,7 +61,42 @@ async function bootstrap() {
     }),
   );
 
-  await nestApp.listen(process.env.PORT ?? 3000);
+  // Setup Swagger Documentation
+  const config = new DocumentBuilder()
+    .setTitle('Solar CRM Backend API')
+    .setDescription('Comprehensive API for Solar Customer Relationship Management System')
+    .setVersion('1.0')
+    .addTag('Consumer Data', 'Manage scraped electricity consumption data')
+    .addTag('Leads', 'Lead management and conversion tracking')
+    .addTag('Orders', 'Solar installation orders and tracking')
+    .addTag('Reminders', 'Follow-up activities and task management')
+    .addTag('Authentication', 'User authentication and authorization')
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        name: 'JWT',
+        description: 'Enter JWT token',
+        in: 'header',
+      },
+      'JWT-auth',
+    )
+    .build();
+
+  const document = SwaggerModule.createDocument(nestApp, config);
+  SwaggerModule.setup('api/docs', nestApp, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+      tagsSorter: 'alpha',
+      operationsSorter: 'alpha',
+    },
+  });
+
+  const port = process.env.PORT ?? 3000;
+  await nestApp.listen(port);
+  console.log(`🚀 Application is running on: http://localhost:${port}`);
+  console.log(`📚 Swagger documentation: http://localhost:${port}/api/docs`);
 }
 
 // For Vercel serverless
