@@ -4,6 +4,7 @@ import { Model } from 'mongoose';
 import { Reminder } from './entities/reminder.entity';
 import { CreateReminderDto } from './dto/create-reminder.dto';
 import { UpdateReminderDto } from './dto/update-reminder.dto';
+import { QueryReminderDto } from './dto/query-reminder.dto';
 
 @Injectable()
 export class RemindersService {
@@ -21,7 +22,7 @@ export class RemindersService {
     return reminder.save();
   }
 
-  async findAll(query: any = {}): Promise<{
+  async findAll(query: QueryReminderDto = {}): Promise<{
     data: Reminder[];
     total: number;
     page: number;
@@ -41,11 +42,11 @@ export class RemindersService {
       toDate,
       page = 1,
       limit = 10,
-      sortBy = 'reminderDate',
+      sortBy = 'scheduledAt',
       sortOrder = 'asc',
     } = query;
 
-    const filter: Record<string, any> = {};
+    const filter: any = {};
 
     if (type) filter.type = type;
     if (status) filter.status = status;
@@ -64,12 +65,12 @@ export class RemindersService {
     }
 
     if (fromDate || toDate) {
-      filter.reminderDate = {};
-      if (fromDate) filter.reminderDate.$gte = new Date(fromDate);
-      if (toDate) filter.reminderDate.$lte = new Date(toDate);
+      filter.scheduledAt = {};
+      if (fromDate) filter.scheduledAt.$gte = new Date(fromDate);
+      if (toDate) filter.scheduledAt.$lte = new Date(toDate);
     }
 
-    const sortOptions: Record<string, 1 | -1> = {};
+    const sortOptions: { [key: string]: 1 | -1 } = {};
     sortOptions[sortBy] = sortOrder === 'asc' ? 1 : -1;
 
     const skip = (page - 1) * limit;
@@ -83,8 +84,6 @@ export class RemindersService {
         .populate('relatedConsumerId', 'name phone email')
         .populate('relatedLeadId', 'customerName status')
         .populate('relatedOrderId', 'orderNumber status')
-        .populate('assignedTo', 'name email')
-        .populate('createdBy', 'name email')
         .exec(),
       this.reminderModel.countDocuments(filter),
     ]);
@@ -105,9 +104,6 @@ export class RemindersService {
       .populate('relatedLeadId', 'customerName status priority')
       .populate('relatedOrderId', 'orderNumber status customerName')
       .populate('relatedHistoryId', 'title interactionType status')
-      .populate('assignedTo', 'name email')
-      .populate('createdBy', 'name email')
-      .populate('updatedBy', 'name email')
       .exec();
 
     if (!reminder) {
@@ -120,7 +116,7 @@ export class RemindersService {
   async findByAssignedTo(assignedTo: string): Promise<Reminder[]> {
     return this.reminderModel
       .find({ assignedTo, status: { $ne: 'completed' } })
-      .sort({ reminderDate: 1 })
+      .sort({ scheduledAt: 1 })
       .populate('relatedConsumerId', 'name phone')
       .populate('relatedLeadId', 'customerName status')
       .populate('relatedOrderId', 'orderNumber status')
@@ -131,11 +127,10 @@ export class RemindersService {
     const now = new Date();
     return this.reminderModel
       .find({
-        reminderDate: { $lt: now },
+        scheduledAt: { $lt: now },
         status: { $in: ['pending', 'snoozed'] },
       })
-      .sort({ reminderDate: 1 })
-      .populate('assignedTo', 'name email')
+      .sort({ scheduledAt: 1 })
       .populate('relatedConsumerId', 'name phone')
       .populate('relatedLeadId', 'customerName')
       .populate('relatedOrderId', 'orderNumber')
@@ -149,8 +144,8 @@ export class RemindersService {
     const now = new Date();
     const futureTime = new Date(now.getTime() + hours * 60 * 60 * 1000);
 
-    const filter: Record<string, any> = {
-      reminderDate: { $gte: now, $lte: futureTime },
+    const filter: any = {
+      scheduledAt: { $gte: now, $lte: futureTime },
       status: 'pending',
     };
 
@@ -158,8 +153,7 @@ export class RemindersService {
 
     return this.reminderModel
       .find(filter)
-      .sort({ reminderDate: 1 })
-      .populate('assignedTo', 'name email')
+      .sort({ scheduledAt: 1 })
       .populate('relatedConsumerId', 'name phone')
       .populate('relatedLeadId', 'customerName')
       .populate('relatedOrderId', 'orderNumber')
@@ -179,9 +173,6 @@ export class RemindersService {
       .populate('relatedConsumerId', 'name phone email')
       .populate('relatedLeadId', 'customerName status')
       .populate('relatedOrderId', 'orderNumber status')
-      .populate('assignedTo', 'name email')
-      .populate('createdBy', 'name email')
-      .populate('updatedBy', 'name email')
       .exec();
 
     if (!updatedReminder) {
@@ -194,22 +185,19 @@ export class RemindersService {
   async markAsCompleted(id: string): Promise<Reminder> {
     return this.update(id, {
       status: 'completed',
-      updatedAt: new Date(),
+      completedAt: new Date(),
     } as UpdateReminderDto);
   }
 
-  async snoozeReminder(
-    id: string,
-    snoozeMinutes: number,
-  ): Promise<Reminder> {
+  async snoozeReminder(id: string, snoozeMinutes: number): Promise<Reminder> {
     const currentTime = new Date();
-    const newReminderDate = new Date(
+    const newScheduledAt = new Date(
       currentTime.getTime() + snoozeMinutes * 60 * 1000,
     );
 
     return this.update(id, {
       status: 'snoozed',
-      reminderDate: newReminderDate.toISOString(),
+      scheduledAt: newScheduledAt.toISOString(),
     } as UpdateReminderDto);
   }
 
@@ -227,14 +215,14 @@ export class RemindersService {
     createdBy: string,
     followUpDays: number = 3,
   ): Promise<Reminder> {
-    const reminderDate = new Date();
-    reminderDate.setDate(reminderDate.getDate() + followUpDays);
+    const scheduledAt = new Date();
+    scheduledAt.setDate(scheduledAt.getDate() + followUpDays);
 
     const reminderData: Partial<CreateReminderDto> = {
-      type: 'follow_up_call',
+      type: 'call',
       title: `Follow up on ${entityType}`,
       description: `Scheduled follow-up for ${entityType}`,
-      reminderDate: reminderDate.toISOString(),
+      scheduledAt: scheduledAt.toISOString(),
       priority: 'medium',
       assignedTo,
       createdBy,
@@ -259,7 +247,7 @@ export class RemindersService {
     assignedTo?: string,
     dateRange?: { fromDate: Date; toDate: Date },
   ) {
-    const filter: Record<string, any> = {};
+    const filter: any = {};
     if (assignedTo) filter.assignedTo = assignedTo;
     if (dateRange) {
       filter.createdAt = {
@@ -299,7 +287,7 @@ export class RemindersService {
         ]),
         this.reminderModel.countDocuments({
           ...filter,
-          reminderDate: { $lt: new Date() },
+          scheduledAt: { $lt: new Date() },
           status: { $in: ['pending', 'snoozed'] },
         }),
       ]);

@@ -12,14 +12,19 @@ import {
 
 export class CreateReminderDto {
   @IsEnum([
-    'follow_up_call',
+    'call',
+    'whatsapp',
+    'email',
+    'meeting',
     'site_visit',
-    'proposal_review',
-    'payment_reminder',
+    'proposal_followup',
+    'document_collection',
     'installation_schedule',
-    'maintenance_check',
-    'document_submission',
-    'general',
+    'payment_followup',
+    'survey',
+    'delivery',
+    'maintenance',
+    'other',
   ])
   type: string;
 
@@ -31,17 +36,13 @@ export class CreateReminderDto {
   description?: string;
 
   @IsDateString()
-  reminderDate: string;
-
-  @IsOptional()
-  @IsDateString()
-  dueDate?: string;
+  scheduledAt: string;
 
   @IsEnum(['low', 'medium', 'high', 'urgent'])
   @IsOptional()
   priority?: string = 'medium';
 
-  @IsEnum(['pending', 'completed', 'cancelled', 'snoozed'])
+  @IsEnum(['pending', 'completed', 'cancelled', 'rescheduled', 'in_progress', 'overdue'])
   @IsOptional()
   status?: string = 'pending';
 
@@ -62,36 +63,53 @@ export class CreateReminderDto {
   relatedHistoryId?: string;
 
   @IsOptional()
-  @IsBoolean()
-  emailNotification?: boolean = true;
+  @IsMongoId()
+  entityId?: string;
+
+  @IsOptional()
+  @IsEnum(['ConsumerData', 'Lead', 'Order'])
+  entityModel?: string;
 
   @IsOptional()
   @IsBoolean()
-  smsNotification?: boolean = false;
+  isCritical?: boolean = false;
 
   @IsOptional()
-  @IsBoolean()
-  pushNotification?: boolean = true;
+  @IsEnum(['sales', 'technical', 'installation', 'admin', 'management'])
+  department?: string;
 
   @IsOptional()
-  @IsNumber()
-  notificationMinutesBefore?: number = 30;
+  @IsObject()
+  notifications?: {
+    email?: boolean;
+    sms?: boolean;
+    whatsapp?: boolean;
+    push?: boolean;
+  };
+
+  @IsOptional()
+  @IsArray()
+  @IsNumber({}, { each: true })
+  notificationIntervals?: number[];
 
   @IsOptional()
   @IsBoolean()
   isRecurring?: boolean = false;
 
   @IsOptional()
-  @IsEnum(['daily', 'weekly', 'monthly', 'yearly'])
-  recurringPattern?: string;
+  @IsObject()
+  recurringPattern?: {
+    frequency?: string;
+    interval?: number;
+    endDate?: Date;
+    maxOccurrences?: number;
+    daysOfWeek?: number[];
+    dayOfMonth?: number;
+  };
 
   @IsOptional()
-  @IsNumber()
-  recurringInterval?: number;
-
-  @IsOptional()
-  @IsDateString()
-  recurringEndDate?: string;
+  @IsMongoId()
+  parentReminderId?: string;
 
   @IsOptional()
   @IsArray()
@@ -99,25 +117,32 @@ export class CreateReminderDto {
   tags?: string[];
 
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  attachments?: string[];
-
-  @IsOptional()
   @IsString()
   notes?: string;
 
-  @IsMongoId()
+  @IsString()
   assignedTo: string;
 
-  @IsMongoId()
+  @IsString()
   createdBy: string;
 
   @IsOptional()
-  @IsMongoId()
+  @IsString()
   updatedBy?: string;
 
   @IsOptional()
   @IsObject()
   customFields?: Record<string, any>;
+
+  @IsOptional()
+  @IsNumber()
+  expectedDuration?: number;
+
+  @IsOptional()
+  @IsBoolean()
+  weatherDependent?: boolean = false;
+
+  @IsOptional()
+  @IsString()
+  externalCalendarEventId?: string;
 }
