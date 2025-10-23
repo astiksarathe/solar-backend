@@ -1,0 +1,313 @@
+{
+  "sampleOrders": [
+    {
+      "orderNumber": "ORD-202412-0001",
+      "consumerId": "675b8e5a1234567890abcdef",
+      "leadId": "675b8e5a1234567890abcdff",
+      "consumerNumber": "CONS-001",
+      "customerName": "Rajesh Sharma",
+      "phoneNumber": "+91 9876543210",
+      "emailAddress": "rajesh.sharma@email.com",
+      "installationAddress": "123 Green Valley, Sector 45, Gurgaon, Haryana 122003",
+      "billingAddress": "123 Green Valley, Sector 45, Gurgaon, Haryana 122003",
+      "status": "confirmed",
+      "customerType": "residential",
+      "systemSize": "5kW",
+      "systemCapacity": 5000,
+      "numberOfPanels": 12,
+      "panelWattage": 450,
+      "inverterType": "String Inverter",
+      "inverterCapacity": 5000,
+      "batteryIncluded": false,
+      "pricing": {
+        "subtotal": 300000,
+        "tax": 54000,
+        "discount": 15000,
+        "total": 339000,
+        "advancePayment": 100000,
+        "remainingAmount": 239000
+      },
+      "costBreakdown": [
+        {
+          "category": "panels",
+          "itemName": "Mono PERC Solar Panel 450W",
+          "description": "High efficiency monocrystalline panels",
+          "quantity": 12,
+          "unitPrice": 8000,
+          "totalPrice": 96000,
+          "taxRate": 18,
+          "discountAmount": 5000
+        },
+        {
+          "category": "inverter",
+          "itemName": "5kW String Inverter",
+          "description": "Grid-tie inverter with MPPT",
+          "quantity": 1,
+          "unitPrice": 45000,
+          "totalPrice": 45000,
+          "taxRate": 18,
+          "discountAmount": 2000
+        },
+        {
+          "category": "installation",
+          "itemName": "Installation & Commissioning",
+          "description": "Complete installation with mounting structure",
+          "quantity": 1,
+          "unitPrice": 80000,
+          "totalPrice": 80000,
+          "taxRate": 18,
+          "discountAmount": 5000
+        },
+        {
+          "category": "accessories",
+          "itemName": "Mounting Structure & Cables",
+          "description": "Galvanized mounting structure and DC/AC cables",
+          "quantity": 1,
+          "unitPrice": 35000,
+          "totalPrice": 35000,
+          "taxRate": 18,
+          "discountAmount": 3000
+        }
+      ],
+      "payments": [
+        {
+          "paymentDate": "2024-12-01T10:00:00Z",
+          "amount": 100000,
+          "paymentMethod": "bank_transfer",
+          "transactionId": "TXN123456789",
+          "status": "completed",
+          "notes": "Advance payment received"
+        }
+      ],
+      "estimatedInstallationDate": "2024-12-15T09:00:00Z",
+      "estimatedAnnualGeneration": 7500,
+      "estimatedMonthlySavings": 4500,
+      "estimatedAnnualSavings": 54000,
+      "paybackPeriod": 6.3,
+      "assignedTo": "675b8e5a1234567890abcd01",
+      "createdBy": "675b8e5a1234567890abcd01",
+      "notes": "Customer prefers weekend installation",
+      "tags": ["residential", "rooftop", "grid-tie"],
+      "orderDate": "2024-12-01T10:00:00Z",
+      "expectedCompletionDate": "2024-12-20T17:00:00Z"
+    },
+    {
+      "orderNumber": "ORD-202412-0002",
+      "consumerId": "675b8e5a1234567890abcde0",
+      "leadId": "675b8e5a1234567890abcd00",
+      "consumerNumber": "CONS-002",
+      "customerName": "Sunita Industries Pvt Ltd",
+      "phoneNumber": "+91 9876543211",
+      "emailAddress": "procurement@sunita-industries.com",
+      "installationAddress": "Plot 45, Industrial Area, Phase 2, Chandigarh 160002",
+      "billingAddress": "Corporate Office, Sector 17, Chandigarh 160017",
+      "status": "installation_in_progress",
+      "customerType": "commercial",
+      "systemSize": "100kW",
+      "systemCapacity": 100000,
+      "numberOfPanels": 250,
+      "panelWattage": 450,
+      "inverterType": "Central Inverter",
+      "inverterCapacity": 100000,
+      "batteryIncluded": true,
+      "batteryCapacity": 200,
+      "pricing": {
+        "subtotal": 5000000,
+        "tax": 900000,
+        "discount": 200000,
+        "total": 5700000,
+        "advancePayment": 2000000,
+        "remainingAmount": 3700000
+      },
+      "costBreakdown": [
+        {
+          "category": "panels",
+          "itemName": "Mono PERC Solar Panel 450W",
+          "description": "High efficiency commercial grade panels",
+          "quantity": 250,
+          "unitPrice": 7500,
+          "totalPrice": 1875000,
+          "taxRate": 18,
+          "discountAmount": 75000
+        },
+        {
+          "category": "inverter",
+          "itemName": "100kW Central Inverter",
+          "description": "Commercial grade central inverter",
+          "quantity": 1,
+          "unitPrice": 800000,
+          "totalPrice": 800000,
+          "taxRate": 18,
+          "discountAmount": 40000
+        },
+        {
+          "category": "battery",
+          "itemName": "Lithium Ion Battery 200kWh",
+          "description": "Commercial energy storage system",
+          "quantity": 1,
+          "unitPrice": 1600000,
+          "totalPrice": 1600000,
+          "taxRate": 18,
+          "discountAmount": 50000
+        },
+        {
+          "category": "installation",
+          "itemName": "Commercial Installation",
+          "description": "Complete commercial installation with civil work",
+          "quantity": 1,
+          "unitPrice": 500000,
+          "totalPrice": 500000,
+          "taxRate": 18,
+          "discountAmount": 25000
+        },
+        {
+          "category": "accessories",
+          "itemName": "Commercial Mounting & Electrical",
+          "description": "Heavy duty mounting and electrical components",
+          "quantity": 1,
+          "unitPrice": 225000,
+          "totalPrice": 225000,
+          "taxRate": 18,
+          "discountAmount": 10000
+        }
+      ],
+      "payments": [
+        {
+          "paymentDate": "2024-11-15T10:00:00Z",
+          "amount": 2000000,
+          "paymentMethod": "bank_transfer",
+          "transactionId": "TXN987654321",
+          "status": "completed",
+          "notes": "Advance payment for commercial project"
+        }
+      ],
+      "estimatedInstallationDate": "2024-12-05T08:00:00Z",
+      "actualInstallationDate": "2024-12-05T08:00:00Z",
+      "estimatedAnnualGeneration": 150000,
+      "estimatedMonthlySavings": 45000,
+      "estimatedAnnualSavings": 540000,
+      "paybackPeriod": 10.5,
+      "assignedTo": "675b8e5a1234567890abcd02",
+      "createdBy": "675b8e5a1234567890abcd02",
+      "installationTeamLead": "675b8e5a1234567890abcd03",
+      "notes": "Large commercial project with battery backup requirement",
+      "tags": ["commercial", "battery", "large-scale"],
+      "orderDate": "2024-11-10T10:00:00Z",
+      "expectedCompletionDate": "2024-12-25T17:00:00Z"
+    },
+    {
+      "orderNumber": "ORD-202412-0003",
+      "consumerId": "675b8e5a1234567890abcde1",
+      "leadId": "675b8e5a1234567890abcd01",
+      "consumerNumber": "CONS-003",
+      "customerName": "Priya Patel",
+      "phoneNumber": "+91 9876543212",
+      "emailAddress": "priya.patel@email.com",
+      "installationAddress": "Villa 25, Palm Grove Society, Ahmedabad, Gujarat 380015",
+      "status": "draft",
+      "customerType": "residential",
+      "systemSize": "8kW",
+      "systemCapacity": 8000,
+      "numberOfPanels": 18,
+      "panelWattage": 450,
+      "inverterType": "Hybrid Inverter",
+      "inverterCapacity": 8000,
+      "batteryIncluded": true,
+      "batteryCapacity": 20,
+      "pricing": {
+        "subtotal": 480000,
+        "tax": 86400,
+        "discount": 24000,
+        "total": 542400,
+        "advancePayment": 0,
+        "remainingAmount": 542400
+      },
+      "costBreakdown": [
+        {
+          "category": "panels",
+          "itemName": "Mono PERC Solar Panel 450W",
+          "description": "Premium residential panels",
+          "quantity": 18,
+          "unitPrice": 8500,
+          "totalPrice": 153000,
+          "taxRate": 18,
+          "discountAmount": 8000
+        },
+        {
+          "category": "inverter",
+          "itemName": "8kW Hybrid Inverter",
+          "description": "Hybrid inverter with battery support",
+          "quantity": 1,
+          "unitPrice": 85000,
+          "totalPrice": 85000,
+          "taxRate": 18,
+          "discountAmount": 4000
+        },
+        {
+          "category": "battery",
+          "itemName": "Lithium Ion Battery 20kWh",
+          "description": "Residential battery backup system",
+          "quantity": 1,
+          "unitPrice": 160000,
+          "totalPrice": 160000,
+          "taxRate": 18,
+          "discountAmount": 8000
+        },
+        {
+          "category": "installation",
+          "itemName": "Residential Installation",
+          "description": "Complete residential installation",
+          "quantity": 1,
+          "unitPrice": 60000,
+          "totalPrice": 60000,
+          "taxRate": 18,
+          "discountAmount": 3000
+        },
+        {
+          "category": "accessories",
+          "itemName": "Residential Accessories",
+          "description": "Complete electrical accessories",
+          "quantity": 1,
+          "unitPrice": 22000,
+          "totalPrice": 22000,
+          "taxRate": 18,
+          "discountAmount": 1000
+        }
+      ],
+      "estimatedAnnualGeneration": 12000,
+      "estimatedMonthlySavings": 6000,
+      "estimatedAnnualSavings": 72000,
+      "paybackPeriod": 7.5,
+      "assignedTo": "675b8e5a1234567890abcd01",
+      "createdBy": "675b8e5a1234567890abcd01",
+      "notes": "Customer interested in battery backup for power outages",
+      "tags": ["residential", "hybrid", "battery-backup"],
+      "orderDate": "2024-12-10T10:00:00Z",
+      "expectedCompletionDate": "2025-01-15T17:00:00Z"
+    }
+  ],
+  "orderStatuses": [
+    "draft",
+    "pending_approval", 
+    "confirmed",
+    "in_progress",
+    "installation_scheduled",
+    "installation_in_progress",
+    "installation_completed",
+    "commissioning",
+    "completed",
+    "cancelled",
+    "on_hold"
+  ],
+  "customerTypes": [
+    "residential",
+    "commercial", 
+    "industrial"
+  ],
+  "priorities": [
+    "low",
+    "medium",
+    "high",
+    "urgent"
+  ]
+}

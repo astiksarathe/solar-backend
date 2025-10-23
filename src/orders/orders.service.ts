@@ -1,9 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Order } from './entities/order.entity';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
+import { QueryOrderDto } from './dto/query-order.dto';
 
 @Injectable()
 export class OrdersService {
@@ -21,7 +22,7 @@ export class OrdersService {
     return order.save();
   }
 
-  async findAll(query: any = {}): Promise<{
+  async findAll(query: QueryOrderDto = {}): Promise<{
     data: Order[];
     total: number;
     page: number;
@@ -70,14 +71,14 @@ export class OrdersService {
     const sortOptions: Record<string, 1 | -1> = {};
     sortOptions[sortBy] = sortOrder === 'asc' ? 1 : -1;
 
-    const skip = (page - 1) * limit;
+    const skip = (Number(page) - 1) * Number(limit);
 
     const [data, total] = await Promise.all([
       this.orderModel
         .find(filter)
         .sort(sortOptions)
         .skip(skip)
-        .limit(limit)
+        .limit(Number(limit))
         .populate('leadId', 'customerName status')
         .populate('consumerId', 'name phone email')
         .populate('assignedTo', 'name email')
@@ -89,9 +90,9 @@ export class OrdersService {
     return {
       data,
       total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      page: Number(page),
+      limit: Number(limit),
+      totalPages: Math.ceil(total / Number(limit)),
     };
   }
 
@@ -299,5 +300,174 @@ export class OrdersService {
       monthlyRevenue,
       systemSizeStats,
     };
+  }
+
+  // New business logic methods
+  async updateOrderStatus(
+    orderId: string,
+    newStatus: string,
+    updatedBy: string,
+    notes?: string,
+  ): Promise<Order> {
+    const order = await this.orderModel.findById(orderId);
+    if (!order) {
+      throw new NotFoundException(`Order with ID ${orderId} not found`);
+    }
+
+    // Validate status transition
+    const validTransitions = this.getValidStatusTransitions(order.status);
+    if (!validTransitions.includes(newStatus)) {
+      throw new BadRequestException(
+        `Invalid status transition from ${order.status} to ${newStatus}`,
+      );
+    }
+
+    const updatedOrder = await this.orderModel
+      .findByIdAndUpdate(
+        orderId,
+        {
+          status: newStatus,
+          updatedBy,
+          updatedAt: new Date(),
+          ...(notes && { notes }),
+        },
+        { new: true, runValidators: true },
+      )
+      .exec();
+
+    return updatedOrder!;
+  }
+
+  private getValidStatusTransitions(currentStatus: string): string[] {
+    const transitions: Record<string, string[]> = {
+      draft: ['pending_approval', 'cancelled'],
+      pending_approval: ['confirmed', 'draft', 'cancelled'],
+      confirmed: ['in_progress', 'cancelled', 'on_hold'],
+      in_progress: ['installation_scheduled', 'on_hold', 'cancelled'],
+      installation_scheduled: ['installation_in_progress', 'on_hold'],
+      installation_in_progress: ['installation_completed', 'on_hold'],
+      installation_completed: ['commissioning'],
+      commissioning: ['completed'],
+      on_hold: ['in_progress', 'installation_scheduled', 'cancelled'],
+      cancelled: [],
+      completed: [],
+    };
+
+    return transitions[currentStatus] || [];
+  }
+
+  async getOrderTimeline(orderId: string): Promise<any[]> {
+    const order = await this.orderModel.findById(orderId).exec();
+    if (!order) {
+      throw new NotFoundException(`Order with ID ${orderId} not found`);
+    }
+
+    const timeline = [
+      {
+        event: 'Order Created',
+        timestamp: (order as any).createdAt,
+        status: 'draft',
+        description: 'Order was created in the system',
+      },
+    ];
+
+    // Add installation milestones
+    if (order.estimatedInstallationDate) {
+      timeline.push({
+        event: 'Installation Scheduled',
+        timestamp: order.estimatedInstallationDate,
+        status: 'installation_scheduled',
+        description: 'Installation date scheduled',
+      });
+    }
+
+    if (order.actualInstallationDate) {
+      timeline.push({
+        event: 'Installation Started',
+        timestamp: order.actualInstallationDate,
+        status: 'installation_in_progress',
+        description: 'Installation work began',
+      });
+    }
+
+    if (order.installationCompletionDate) {
+      timeline.push({
+        event: 'Installation Completed',
+        timestamp: order.installationCompletionDate,
+        status: 'installation_completed',
+        description: 'Installation work completed',
+      });
+    }
+
+    if (order.commissioningDate) {
+      timeline.push({
+        event: 'System Commissioned',
+        timestamp: order.commissioningDate,
+        status: 'commissioning',
+        description: 'Solar system commissioned and activated',
+      });
+    }
+
+    return timeline.sort(
+      (a, b) =>
+        new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
+    );
+  }
+
+  async validateOrderData(orderData: any): Promise<string[]> {
+    const errors: string[] = [];
+
+    // Validate system capacity vs pricing
+    if (orderData.systemCapacity && orderData.pricing?.total) {
+      const costPerKW = orderData.pricing.total / orderData.systemCapacity;
+      if (costPerKW < 40000 || costPerKW > 100000) {
+        errors.push(
+          'Cost per kW seems unusual (expected range: ₹40,000 - ₹1,00,000)',
+        );
+      }
+    }
+
+    // Validate installation dates
+    if (
+      orderData.estimatedInstallationDate &&
+      orderData.actualInstallationDate
+    ) {
+      const estimated = new Date(orderData.estimatedInstallationDate);
+      const actual = new Date(orderData.actualInstallationDate);
+      if (actual < estimated) {
+        errors.push(
+          'Actual installation date cannot be before estimated date',
+        );
+      }
+    }
+
+    // Validate payment amounts
+    if (orderData.pricing) {
+      const { total, advancePayment, discount } = orderData.pricing;
+      if (advancePayment && total && advancePayment > total) {
+        errors.push('Advance payment cannot exceed total amount');
+      }
+      if (discount && total && discount > total * 0.3) {
+        errors.push('Discount cannot exceed 30% of total amount');
+      }
+    }
+
+    return errors;
+  }
+
+  async generateOrderNumber(): Promise<string> {
+    const year = new Date().getFullYear();
+    const month = String(new Date().getMonth() + 1).padStart(2, '0');
+
+    // Get the count of orders this month
+    const monthStart = new Date(year, new Date().getMonth(), 1);
+    const monthEnd = new Date(year, new Date().getMonth() + 1, 0);
+
+    const monthlyCount = await this.orderModel.countDocuments({
+      createdAt: { $gte: monthStart, $lte: monthEnd },
+    });
+
+    const sequence = String(monthlyCount + 1).padStart(4, '0');
+    return `ORD-${year}${month}-${sequence}`;
   }
 }

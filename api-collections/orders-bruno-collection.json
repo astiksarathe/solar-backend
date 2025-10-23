@@ -1,0 +1,281 @@
+{
+  "type": "collection",
+  "name": "Solar Stack Orders API",
+  "uid": "orders-api-collection",
+  "version": "1.0.0",
+  "description": "Complete API collection for Solar Stack Order Management System",
+  "variables": {
+    "baseUrl": "http://localhost:3000",
+    "authToken": "your-jwt-token-here"
+  },
+  "requests": [
+    {
+      "type": "http",
+      "name": "Create Order",
+      "url": "{{baseUrl}}/orders",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer {{authToken}}"
+      },
+      "body": {
+        "type": "json",
+        "json": {
+          "orderNumber": "ORD-202412-0004",
+          "consumerId": "675b8e5a1234567890abcdef",
+          "leadId": "675b8e5a1234567890abcdff",
+          "consumerNumber": "CONS-004",
+          "customerName": "Test Customer",
+          "phoneNumber": "+91 9876543213",
+          "emailAddress": "test@example.com",
+          "installationAddress": "Test Address, City, State 123456",
+          "status": "draft",
+          "customerType": "residential",
+          "systemSize": "3kW",
+          "systemCapacity": 3000,
+          "numberOfPanels": 8,
+          "panelWattage": 450,
+          "inverterType": "String Inverter",
+          "inverterCapacity": 3000,
+          "batteryIncluded": false,
+          "pricing": {
+            "subtotal": 180000,
+            "tax": 32400,
+            "discount": 5000,
+            "total": 207400,
+            "advancePayment": 50000,
+            "remainingAmount": 157400
+          },
+          "costBreakdown": [
+            {
+              "category": "panels",
+              "itemName": "Solar Panel 450W",
+              "quantity": 8,
+              "unitPrice": 8000,
+              "totalPrice": 64000,
+              "taxRate": 18,
+              "discountAmount": 2000
+            },
+            {
+              "category": "inverter",
+              "itemName": "3kW Inverter",
+              "quantity": 1,
+              "unitPrice": 30000,
+              "totalPrice": 30000,
+              "taxRate": 18,
+              "discountAmount": 1000
+            },
+            {
+              "category": "installation",
+              "itemName": "Installation",
+              "quantity": 1,
+              "unitPrice": 50000,
+              "totalPrice": 50000,
+              "taxRate": 18,
+              "discountAmount": 2000
+            }
+          ],
+          "assignedTo": "675b8e5a1234567890abcd01",
+          "createdBy": "675b8e5a1234567890abcd01",
+          "orderDate": "2024-12-15T10:00:00Z"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "Get All Orders",
+      "url": "{{baseUrl}}/orders",
+      "method": "GET",
+      "headers": {
+        "Authorization": "Bearer {{authToken}}"
+      },
+      "params": [
+        {
+          "name": "page",
+          "value": "1",
+          "enabled": true
+        },
+        {
+          "name": "limit",
+          "value": "10",
+          "enabled": true
+        },
+        {
+          "name": "status",
+          "value": "confirmed",
+          "enabled": false
+        },
+        {
+          "name": "customerType",
+          "value": "residential",
+          "enabled": false
+        },
+        {
+          "name": "search",
+          "value": "Rajesh",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "type": "http",
+      "name": "Get Order by ID",
+      "url": "{{baseUrl}}/orders/675b8e5a1234567890abcdef",
+      "method": "GET",
+      "headers": {
+        "Authorization": "Bearer {{authToken}}"
+      }
+    },
+    {
+      "type": "http",
+      "name": "Update Order",
+      "url": "{{baseUrl}}/orders/675b8e5a1234567890abcdef",
+      "method": "PATCH",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer {{authToken}}"
+      },
+      "body": {
+        "type": "json",
+        "json": {
+          "status": "confirmed",
+          "notes": "Order confirmed by customer",
+          "updatedBy": "675b8e5a1234567890abcd01"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "Update Order Status",
+      "url": "{{baseUrl}}/orders/675b8e5a1234567890abcdef/status",
+      "method": "PATCH",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer {{authToken}}"
+      },
+      "body": {
+        "type": "json",
+        "json": {
+          "status": "in_progress",
+          "updatedBy": "675b8e5a1234567890abcd01",
+          "notes": "Started processing the order"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "Update Payment Info",
+      "url": "{{baseUrl}}/orders/675b8e5a1234567890abcdef/payment",
+      "method": "PATCH",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer {{authToken}}"
+      },
+      "body": {
+        "type": "json",
+        "json": {
+          "advancePayment": 100000,
+          "discount": 10000
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "Update Installation Info",
+      "url": "{{baseUrl}}/orders/675b8e5a1234567890abcdef/installation",
+      "method": "PATCH",
+      "headers": {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer {{authToken}}"
+      },
+      "body": {
+        "type": "json",
+        "json": {
+          "estimatedInstallationDate": "2024-12-20",
+          "actualInstallationDate": "2024-12-20",
+          "installationTeamLead": "Team Lead Name"
+        }
+      }
+    },
+    {
+      "type": "http",
+      "name": "Get Order Timeline",
+      "url": "{{baseUrl}}/orders/675b8e5a1234567890abcdef/timeline",
+      "method": "GET",
+      "headers": {
+        "Authorization": "Bearer {{authToken}}"
+      }
+    },
+    {
+      "type": "http",
+      "name": "Get Order Statistics",
+      "url": "{{baseUrl}}/orders/stats",
+      "method": "GET",
+      "headers": {
+        "Authorization": "Bearer {{authToken}}"
+      },
+      "params": [
+        {
+          "name": "assignedTo",
+          "value": "675b8e5a1234567890abcd01",
+          "enabled": false
+        },
+        {
+          "name": "fromDate",
+          "value": "2024-12-01",
+          "enabled": false
+        },
+        {
+          "name": "toDate",
+          "value": "2024-12-31",
+          "enabled": false
+        }
+      ]
+    },
+    {
+      "type": "http",
+      "name": "Get Orders by Consumer",
+      "url": "{{baseUrl}}/orders/consumer/675b8e5a1234567890abcdef",
+      "method": "GET",
+      "headers": {
+        "Authorization": "Bearer {{authToken}}"
+      }
+    },
+    {
+      "type": "http",
+      "name": "Get Orders by Lead",
+      "url": "{{baseUrl}}/orders/lead/675b8e5a1234567890abcdff",
+      "method": "GET",
+      "headers": {
+        "Authorization": "Bearer {{authToken}}"
+      }
+    },
+    {
+      "type": "http",
+      "name": "Generate Order Number",
+      "url": "{{baseUrl}}/orders/generate-order-number",
+      "method": "POST",
+      "headers": {
+        "Authorization": "Bearer {{authToken}}"
+      }
+    },
+    {
+      "type": "http",
+      "name": "Validate Order",
+      "url": "{{baseUrl}}/orders/675b8e5a1234567890abcdef/validate",
+      "method": "POST",
+      "headers": {
+        "Authorization": "Bearer {{authToken}}"
+      }
+    },
+    {
+      "type": "http",
+      "name": "Delete Order",
+      "url": "{{baseUrl}}/orders/675b8e5a1234567890abcdef",
+      "method": "DELETE",
+      "headers": {
+        "Authorization": "Bearer {{authToken}}"
+      }
+    }
+  ]
+}
