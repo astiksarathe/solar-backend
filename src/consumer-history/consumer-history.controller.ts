@@ -14,6 +14,11 @@ import { CreateConsumerHistoryDto } from './dto/create-consumer-history.dto';
 import { UpdateConsumerHistoryDto } from './dto/update-consumer-history.dto';
 import { QueryConsumerHistoryDto } from './dto/query-consumer-history.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import {
+  Audit,
+  ComplianceAudit,
+  NoAudit,
+} from '../audit/decorators/audit.decorator';
 
 @Controller('consumer-history')
 @UseGuards(JwtAuthGuard)
@@ -23,16 +28,24 @@ export class ConsumerHistoryController {
   ) {}
 
   @Post()
+  @Audit({
+    entityType: 'ConsumerHistory',
+    module: 'CONSUMER_HISTORY',
+    category: 'DATA_CHANGE',
+    priority: 'MEDIUM',
+  })
   create(@Body() createConsumerHistoryDto: CreateConsumerHistoryDto) {
     return this.consumerHistoryService.create(createConsumerHistoryDto);
   }
 
   @Get()
+  @NoAudit()
   findAll(@Query() query: QueryConsumerHistoryDto) {
     return this.consumerHistoryService.findAll(query);
   }
 
   @Get('stats')
+  @NoAudit()
   getStats(
     @Query('consumerId') consumerId?: string,
     @Query('fromDate') fromDate?: string,
@@ -53,16 +66,24 @@ export class ConsumerHistoryController {
   }
 
   @Get('consumer/:consumerId')
+  @NoAudit()
   findByConsumerId(@Param('consumerId') consumerId: string) {
     return this.consumerHistoryService.findByConsumerId(consumerId);
   }
 
   @Get(':id')
+  @NoAudit()
   findOne(@Param('id') id: string) {
     return this.consumerHistoryService.findOne(id);
   }
 
   @Patch(':id')
+  @Audit({
+    entityType: 'ConsumerHistory',
+    module: 'CONSUMER_HISTORY',
+    category: 'DATA_CHANGE',
+    priority: 'MEDIUM',
+  })
   update(
     @Param('id') id: string,
     @Body() updateConsumerHistoryDto: UpdateConsumerHistoryDto,
@@ -71,6 +92,10 @@ export class ConsumerHistoryController {
   }
 
   @Delete(':id')
+  @ComplianceAudit({
+    entityType: 'ConsumerHistory',
+    module: 'CONSUMER_HISTORY',
+  })
   remove(@Param('id') id: string) {
     return this.consumerHistoryService.remove(id);
   }

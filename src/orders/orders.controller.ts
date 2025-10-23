@@ -23,6 +23,12 @@ import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { QueryOrderDto } from './dto/query-order.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import {
+  Audit,
+  NoAudit,
+  HighPriorityAudit,
+  ComplianceAudit,
+} from '../audit/decorators/audit.decorator';
 
 @ApiTags('orders')
 @ApiBearerAuth()
@@ -41,6 +47,11 @@ export class OrdersController {
     status: 400,
     description: 'Invalid order data',
   })
+  @HighPriorityAudit({
+    entityType: 'Order',
+    module: 'ORDERS',
+    category: 'BUSINESS_PROCESS',
+  })
   create(@Body() createOrderDto: CreateOrderDto) {
     return this.ordersService.create(createOrderDto);
   }
@@ -51,6 +62,7 @@ export class OrdersController {
     status: 200,
     description: 'Orders retrieved successfully',
   })
+  @NoAudit()
   findAll(@Query() query: QueryOrderDto) {
     return this.ordersService.findAll(query);
   }
@@ -76,6 +88,7 @@ export class OrdersController {
     status: 200,
     description: 'Order statistics retrieved successfully',
   })
+  @NoAudit()
   getStats(
     @Query('assignedTo') assignedTo?: string,
     @Query('fromDate') fromDate?: string,
@@ -178,6 +191,12 @@ export class OrdersController {
   @ApiResponse({
     status: 200,
     description: 'Payment information updated successfully',
+  })
+  @HighPriorityAudit({
+    entityType: 'Order',
+    module: 'ORDERS',
+    category: 'BUSINESS_PROCESS',
+    additionalMetadata: { operationType: 'payment_update' },
   })
   updatePayment(
     @Param('id') id: string,
@@ -307,6 +326,12 @@ export class OrdersController {
     status: 400,
     description: 'Invalid status transition',
   })
+  @HighPriorityAudit({
+    entityType: 'Order',
+    module: 'ORDERS',
+    category: 'BUSINESS_PROCESS',
+    additionalMetadata: { operationType: 'status_update' },
+  })
   updateStatus(
     @Param('id') id: string,
     @Body() statusUpdate: { status: string; updatedBy: string; notes?: string },
@@ -389,6 +414,10 @@ export class OrdersController {
   @ApiResponse({
     status: 404,
     description: 'Order not found',
+  })
+  @ComplianceAudit({
+    entityType: 'Order',
+    module: 'ORDERS',
   })
   remove(@Param('id') id: string) {
     return this.ordersService.remove(id);

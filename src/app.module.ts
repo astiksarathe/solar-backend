@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ElectricityBillModule } from './electricity-bill/electricity-bill.module';
@@ -12,6 +13,8 @@ import { ConsumerHistoryModule } from './consumer-history/consumer-history.modul
 import { LeadsModule } from './leads/leads.module';
 import { OrdersModule } from './orders/orders.module';
 import { RemindersModule } from './reminders/reminders.module';
+import { AuditModule } from './audit/audit.module';
+import { AuditInterceptor } from './audit/interceptors/audit.interceptor';
 
 @Module({
   imports: [
@@ -35,8 +38,15 @@ import { RemindersModule } from './reminders/reminders.module';
     LeadsModule,
     OrdersModule,
     RemindersModule,
+    AuditModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: AuditInterceptor,
+    },
+  ],
 })
 export class AppModule {}
