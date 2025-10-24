@@ -3,16 +3,8 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from '../../user/user.service';
-import { AuthUser } from '../interfaces/auth.interface';
-
-interface JwtPayload {
-  sub: string;
-  email: string;
-  username: string;
-  role: string;
-  iat?: number;
-  exp?: number;
-}
+import { AuthUser, JwtPayload } from '../interfaces/auth.interface';
+import { UserStatus } from '../../user/user.schema';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -30,15 +22,27 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
 
   async validate(payload: JwtPayload): Promise<AuthUser> {
     const user = await this.userService.findById(payload.sub);
-    console.log('Validated JWT payload:', payload);
+    
     if (!user) {
-      throw new UnauthorizedException();
+      throw new UnauthorizedException('User not found');
     }
+
+    if (user.status !== UserStatus.ACTIVE) {
+      throw new UnauthorizedException('Account is not active');
+    }
+
+    // Check if account is locked
+    if (await this.userService.isAccountLocked(payload.sub)) {
+      throw new UnauthorizedException('Account is temporarily locked');
+    }
+
     return {
       userId: payload.sub,
       email: payload.email,
       username: payload.username,
       role: payload.role,
+      status: payload.status,
+      permissions: payload.permissions || [],
     };
   }
 }

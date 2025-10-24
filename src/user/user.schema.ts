@@ -3,71 +3,122 @@ import { Document } from 'mongoose';
 
 export type UserDocument = User & Document;
 
-@Schema({
-  timestamps: true,
-  toJSON: {
-    transform: (doc: any, ret: any) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-      ret.id = ret._id;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      delete ret._id;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      delete ret.__v;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      delete ret.password;
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
-      return ret;
-    },
-  },
-})
+export enum UserRole {
+  USER = 'user',
+  ADMIN = 'admin',
+  MANAGER = 'manager',
+  SALES = 'sales',
+  TECHNICIAN = 'technician',
+}
+
+export enum UserStatus {
+  ACTIVE = 'active',
+  INACTIVE = 'inactive',
+  SUSPENDED = 'suspended',
+  PENDING = 'pending',
+}
+
+@Schema({ timestamps: true })
 export class User {
-  @Prop({
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true,
-    maxlength: 255,
-  })
+  @Prop({ required: true, unique: true, lowercase: true, trim: true })
   email: string;
 
-  @Prop({ required: true })
+  @Prop({ required: true, unique: true, trim: true })
+  username: string;
+
+  @Prop({ required: true, select: false })
   password: string;
 
   @Prop({
-    default: 'user',
-    enum: ['user', 'admin', 'moderator'],
+    enum: Object.values(UserRole),
+    default: UserRole.USER,
   })
-  role: string;
+  role: UserRole;
 
   @Prop({
-    required: true,
-    unique: true,
-    lowercase: true,
-    trim: true,
-    maxlength: 50,
+    enum: Object.values(UserStatus),
+    default: UserStatus.ACTIVE,
   })
-  username: string;
+  status: UserStatus;
 
-  @Prop({ default: null })
-  createdBy: string;
+  @Prop({ trim: true })
+  firstName: string;
 
-  @Prop({ default: null })
-  updatedBy: string;
+  @Prop({ trim: true })
+  lastName: string;
 
-  @Prop({ type: Date, default: Date.now })
+  @Prop({ trim: true })
+  phone: string;
+
+  @Prop()
+  lastLogin: Date;
+
+  @Prop({ default: 0 })
+  loginAttempts: number;
+
+  @Prop()
+  lockUntil: Date;
+
+  @Prop({ default: true })
+  emailVerified: boolean;
+
+  @Prop()
+  emailVerificationToken: string;
+
+  @Prop()
+  passwordResetToken: string;
+
+  @Prop()
+  passwordResetExpires: Date;
+
+  @Prop({ type: [String], default: [] })
+  permissions: string[];
+
+  @Prop()
   createdAt: Date;
 
-  @Prop({ type: Date, default: Date.now })
+  @Prop()
   updatedAt: Date;
+
+  @Prop({ type: Object })
+  metadata: any;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);
 
-// Pre-save middleware to generate username from email if not provided
-UserSchema.pre('save', function (next) {
-  if (!this.username && this.email) {
-    this.username = this.email.split('@')[0];
+// Create indexes for better performance
+UserSchema.index({ email: 1 });
+UserSchema.index({ username: 1 });
+UserSchema.index({ role: 1 });
+UserSchema.index({ status: 1 });
+
+// Virtual for account locked status
+UserSchema.virtual('isLocked').get(function () {
+  return !!(this.lockUntil && this.lockUntil > new Date());
+});
+
+// Virtual for full name
+UserSchema.virtual('fullName').get(function () {
+  if (this.firstName && this.lastName) {
+    return `${this.firstName} ${this.lastName}`;
   }
-  this.updatedAt = new Date();
-  next();
+  return this.username;
+});
+
+// Remove sensitive fields from JSON output
+UserSchema.set('toJSON', {
+  virtuals: true,
+  transform: (doc, ret) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const {
+      password,
+      emailVerificationToken,
+      passwordResetToken,
+      passwordResetExpires,
+      loginAttempts,
+      lockUntil,
+      ...result
+    } = ret;
+    return result;
+  },
 });
