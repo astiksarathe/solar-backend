@@ -1,0 +1,36 @@
+meta {
+  name: 10. Get Follow-ups Due
+  type: http
+  seq: 10
+}
+
+get {
+  url: {{baseUrl}}/consumer-history/follow-ups-due
+  body: none
+  auth: inherit
+}
+
+params:query {
+  assignedTo: 675b8e5a1234567890abcd01
+  days: 7
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+}
+
+tests {
+  test("should get follow-ups due", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body).to.be.an('array');
+    res.body.forEach(function(item) {
+      expect(item.nextFollowUp).to.exist;
+      const followUpDate = new Date(item.nextFollowUp);
+      const now = new Date();
+      const weekFromNow = new Date();
+      weekFromNow.setDate(now.getDate() + 7);
+      expect(followUpDate).to.be.at.least(now);
+      expect(followUpDate).to.be.at.most(weekFromNow);
+    });
+  });
+}

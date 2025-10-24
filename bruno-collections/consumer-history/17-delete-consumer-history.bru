@@ -1,0 +1,21 @@
+meta {
+  name: 17. Delete Consumer History
+  type: http
+  seq: 17
+}
+
+delete {
+  url: {{baseUrl}}/consumer-history/675b8e5a1234567890abcdef
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+}
+
+tests {
+  test("should delete consumer history", function() {
+    expect(res.status).to.equal(200);
+  });
+}

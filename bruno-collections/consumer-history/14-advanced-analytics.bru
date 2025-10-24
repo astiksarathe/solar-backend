@@ -1,0 +1,39 @@
+meta {
+  name: 14. Advanced Analytics
+  type: http
+  seq: 14
+}
+
+get {
+  url: {{baseUrl}}/consumer-history/analytics
+  body: none
+  auth: inherit
+}
+
+params:query {
+  assignedTo: 675b8e5a1234567890abcd01
+  fromDate: 2024-11-01T00:00:00Z
+  toDate: 2024-12-31T23:59:59Z
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+}
+
+tests {
+  test("should get advanced analytics", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body).to.have.property('interactionTypeStats');
+    expect(res.body).to.have.property('statusStats');
+    expect(res.body).to.have.property('priorityStats');
+    expect(res.body).to.have.property('interestLevelStats');
+    expect(res.body).to.have.property('outcomeStats');
+    expect(res.body).to.have.property('monthlyTrends');
+    expect(res.body).to.have.property('averageBudgetByInterest');
+    expect(res.body).to.have.property('conversionFunnel');
+    
+    expect(res.body.interactionTypeStats).to.be.an('array');
+    expect(res.body.monthlyTrends).to.be.an('array');
+    expect(res.body.conversionFunnel).to.be.an('object');
+  });
+}

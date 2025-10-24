@@ -1,0 +1,60 @@
+meta {
+  name: 01. Create Consumer History
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/consumer-history
+  body: json
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "consumerId": "675b8e5a1234567890abcdef",
+    "consumerNumber": "CONS-001",
+    "interactionType": "call",
+    "status": "completed",
+    "title": "Initial inquiry call",
+    "description": "Customer called to inquire about solar panel installation for their 3BHK house",
+    "notes": "Customer very interested, wants to know about government subsidies and installation process",
+    "scheduledDate": "2024-12-01T10:00:00Z",
+    "completedDate": "2024-12-01T10:30:00Z",
+    "duration": 30,
+    "location": "Phone call",
+    "contactPerson": "Rajesh Sharma",
+    "phoneNumber": "+91 9876543210",
+    "emailAddress": "rajesh.sharma@email.com",
+    "interestLevel": "very_interested",
+    "nextFollowUp": "2024-12-05T10:00:00Z",
+    "estimatedBudget": 500000,
+    "systemSize": "5kW",
+    "attachments": [],
+    "assignedTo": "675b8e5a1234567890abcd01",
+    "priority": "high",
+    "outcome": "successful",
+    "tags": ["hot_lead", "residential", "government_subsidy"],
+    "customFields": {
+      "roofType": "concrete",
+      "shadowIssues": false,
+      "currentElectricityBill": 8000,
+      "referralSource": "google_search"
+    }
+  }
+}
+
+tests {
+  test("should create consumer history", function() {
+    expect(res.status).to.equal(201);
+    expect(res.body).to.have.property('_id');
+    expect(res.body.title).to.equal('Initial inquiry call');
+    expect(res.body.interactionType).to.equal('call');
+    expect(res.body.status).to.equal('completed');
+  });
+}

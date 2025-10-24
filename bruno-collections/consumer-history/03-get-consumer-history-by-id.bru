@@ -1,0 +1,25 @@
+meta {
+  name: 03. Get Consumer History by ID
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/consumer-history/675b8e5a1234567890abcdef
+  body: none
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+}
+
+tests {
+  test("should get consumer history by ID", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body).to.have.property('_id');
+    expect(res.body).to.have.property('title');
+    expect(res.body).to.have.property('interactionType');
+    expect(res.body).to.have.property('status');
+  });
+}

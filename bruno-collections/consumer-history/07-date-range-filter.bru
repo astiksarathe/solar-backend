@@ -1,0 +1,36 @@
+meta {
+  name: 07. Date Range Filter
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/consumer-history
+  body: none
+  auth: inherit
+}
+
+params:query {
+  fromDate: 2024-12-01T00:00:00Z
+  toDate: 2024-12-31T23:59:59Z
+  status: completed
+  sort: scheduledDate
+  order: desc
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+}
+
+tests {
+  test("should filter by date range", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body.data).to.be.an('array');
+    res.body.data.forEach(function(item) {
+      const scheduledDate = new Date(item.scheduledDate);
+      expect(scheduledDate).to.be.at.least(new Date('2024-12-01T00:00:00Z'));
+      expect(scheduledDate).to.be.at.most(new Date('2024-12-31T23:59:59Z'));
+      expect(item.status).to.equal('completed');
+    });
+  });
+}

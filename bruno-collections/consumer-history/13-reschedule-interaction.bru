@@ -1,0 +1,33 @@
+meta {
+  name: 13. Reschedule Interaction
+  type: http
+  seq: 13
+}
+
+patch {
+  url: {{baseUrl}}/consumer-history/675b8e5a1234567890abcdef/reschedule
+  body: json
+  auth: inherit
+}
+
+headers {
+  Authorization: Bearer {{authToken}}
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "newDate": "2024-12-10T14:00:00Z",
+    "reason": "Customer requested to reschedule due to family function",
+    "updatedBy": "675b8e5a1234567890abcd01"
+  }
+}
+
+tests {
+  test("should reschedule interaction", function() {
+    expect(res.status).to.equal(200);
+    expect(res.body.status).to.equal('rescheduled');
+    expect(res.body.scheduledDate).to.equal('2024-12-10T14:00:00.000Z');
+    expect(res.body.notes).to.include('Rescheduled: Customer requested to reschedule due to family function');
+  });
+}

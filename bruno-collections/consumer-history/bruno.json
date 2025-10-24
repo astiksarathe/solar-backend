@@ -1,0 +1,11 @@
+{
+  "meta": {
+    "name": "Consumer History API Collection",
+    "type": "collection",
+    "version": "1.0.0"
+  },
+  "variable": {
+    "baseUrl": "http://localhost:3000",
+    "authToken": ""
+  }
+}
