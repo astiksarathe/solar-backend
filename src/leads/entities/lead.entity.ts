@@ -57,8 +57,8 @@ export class Lead {
 
   @Prop({
     required: true,
-    enum: ['cold', 'warm', 'hot'],
-    default: 'warm',
+    enum: ['low', 'medium', 'high', 'urgent'],
+    default: 'medium',
     index: true,
   })
   priority: string;

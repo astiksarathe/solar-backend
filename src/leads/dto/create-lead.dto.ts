@@ -196,7 +196,7 @@ export class CreateLeadDto {
   status?: string = 'new';
 
   @IsOptional()
-  @IsString()
+  @IsEnum(['low', 'medium', 'high', 'urgent'])
   priority?: string = 'medium';
 
   @IsOptional()

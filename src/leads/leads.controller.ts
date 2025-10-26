@@ -52,7 +52,7 @@ export class LeadsController {
         leadType: 'cold_call',
         leadSource: 'marketing_campaign',
         status: 'new',
-        priority: 'warm',
+        priority: 'medium',
         customerType: 'residential',
         estimatedValue: 400000,
         probability: 60,
@@ -301,7 +301,7 @@ export class LeadsController {
   @ApiQuery({
     name: 'priority',
     required: false,
-    enum: ['cold', 'warm', 'hot'],
+    enum: ['low', 'medium', 'high', 'urgent'],
     description: 'Filter by lead priority',
   })
   @ApiQuery({
