@@ -8,13 +8,13 @@ export class Lead {
   @Prop({
     type: Types.ObjectId,
     ref: 'ConsumerDatum',
-    required: true,
+    required: false,
     index: true,
   })
-  consumerId: Types.ObjectId;
+  consumerId?: Types.ObjectId;
 
-  @Prop({ required: true, unique: true, index: true })
-  consumerNumber: string;
+  @Prop({ required: false, sparse: true, index: true })
+  consumerNumber?: string;
 
   @Prop({ required: true })
   customerName: string;
@@ -110,6 +110,23 @@ export class Lead {
 
   @Prop()
   leadSource?: string; // e.g., 'website', 'referral', 'cold_call', 'exhibition'
+
+  @Prop({
+    enum: [
+      'consumer_data',
+      'direct_inquiry',
+      'marketing',
+      'referral',
+      'cold_call',
+      'trade_show',
+      'walk_in',
+      'self',
+    ],
+    default: 'self',
+    required: true,
+    index: true,
+  })
+  leadType: string; // Distinguishes between leads from consumer data vs direct leads
 
   @Prop()
   referredBy?: string;

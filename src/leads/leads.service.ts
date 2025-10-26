@@ -5,21 +5,96 @@ import { Lead } from './entities/lead.entity';
 import { CreateLeadDto } from './dto/create-lead.dto';
 import { UpdateLeadDto } from './dto/update-lead.dto';
 import { QueryLeadDto } from './dto/query-lead.dto';
+import { RemindersService } from '../reminders/reminders.service';
 
 @Injectable()
 export class LeadsService {
   constructor(
     @InjectModel(Lead.name)
     private leadModel: Model<Lead>,
+    private remindersService: RemindersService,
   ) {}
 
   async create(createLeadDto: CreateLeadDto): Promise<Lead> {
+    // Validation: Either consumer data OR direct customer info must be provided
+    const hasConsumerData =
+      createLeadDto.consumerId && createLeadDto.consumerNumber;
+    const hasDirectCustomerInfo =
+      createLeadDto.customerName && createLeadDto.phoneNumber;
+
+    if (!hasConsumerData && !hasDirectCustomerInfo) {
+      throw new Error(
+        'Either consumer data (consumerId and consumerNumber) OR direct customer information (customerName and phoneNumber) must be provided',
+      );
+    }
+
+    // Prepare lead data based on type
+    const { reminders, ...leadData } = createLeadDto;
+
+    if (hasConsumerData && createLeadDto.leadType === 'consumer_data') {
+      // This would require injecting the ConsumerData model to fetch details
+      // For now, we'll trust that the consumer exists and the lead type is correct
+      leadData.leadType = 'consumer_data';
+    } else {
+      // Direct lead creation - ensure we have minimum required info
+      if (!createLeadDto.customerName) {
+        throw new Error('Customer name is required for direct leads');
+      }
+      if (!createLeadDto.phoneNumber) {
+        throw new Error('Phone number is required for direct leads');
+      }
+
+      leadData.leadType = createLeadDto.leadType || 'self';
+    }
+
     const lead = new this.leadModel({
-      ...createLeadDto,
+      ...leadData,
       createdAt: new Date(),
       updatedAt: new Date(),
     });
-    return lead.save();
+
+    const savedLead = await lead.save();
+
+    // Create reminders if provided
+    if (reminders && reminders.length > 0) {
+      try {
+        const reminderPromises = reminders.map((reminderData) => {
+          const reminderDto = {
+            entityId: savedLead._id.toString(),
+            entityModel: 'Lead' as const,
+            type: reminderData.type,
+            scheduledAt: reminderData.scheduledAt,
+            title: reminderData.title,
+            description: reminderData.description,
+            priority: reminderData.priority || 'medium',
+            isCritical: reminderData.isCritical || false,
+            assignedTo: createLeadDto.assignedTo,
+            createdBy: createLeadDto.createdBy,
+            notes: reminderData.notes,
+            tags: reminderData.tags || [],
+            expectedDuration: reminderData.expectedDuration,
+            notificationIntervals: reminderData.notificationIntervals || [
+              60, 15,
+            ],
+            notifications: {
+              email: reminderData.emailNotification || false,
+              sms: reminderData.smsNotification || false,
+              whatsapp: reminderData.whatsappNotification || false,
+              push: reminderData.pushNotification || true,
+            },
+          };
+
+          return this.remindersService.create(reminderDto);
+        });
+
+        await Promise.all(reminderPromises);
+      } catch (error) {
+        // Log the error but don't fail the lead creation
+        console.error('Failed to create reminders for lead:', error);
+      }
+    }
+
+    return savedLead;
   }
 
   async findAll(query: QueryLeadDto = {}): Promise<{
@@ -106,8 +181,8 @@ export class LeadsService {
     // Date filters
     if (fromDate || toDate) {
       filter.createdAt = {};
-      if (fromDate) (filter.createdAt as any).$gte = new Date(fromDate);
-      if (toDate) (filter.createdAt as any).$lte = new Date(toDate);
+      if (fromDate) filter.createdAt.$gte = new Date(fromDate);
+      if (toDate) filter.createdAt.$lte = new Date(toDate);
     }
 
     if (expectedCloseFromDate || expectedCloseToDate) {
