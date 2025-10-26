@@ -38,7 +38,8 @@ export class AuditInterceptor implements NestInterceptor {
 
     const startTime = Date.now();
     const user = request.user;
-    const entityType = auditMetadata?.entityType || this.extractEntityType(request);
+    const entityType =
+      auditMetadata?.entityType || this.extractEntityType(request);
     const entityId = auditMetadata?.entityId || this.extractEntityId(request);
     const operation = this.mapHttpMethodToOperation(request.method);
     const module = auditMetadata?.module || this.extractModule(request);
@@ -51,10 +52,10 @@ export class AuditInterceptor implements NestInterceptor {
     return next.handle().pipe(
       tap((data) => {
         const executionTime = Date.now() - startTime;
-        
+
         // Only audit if we have essential information
-        if (user && entityType) {
-          this.logSuccessfulOperation(
+        if (entityType) {
+          void this.logSuccessfulOperation(
             request,
             response,
             user,
@@ -70,9 +71,9 @@ export class AuditInterceptor implements NestInterceptor {
       }),
       catchError((error) => {
         const executionTime = Date.now() - startTime;
-        
-        if (user && entityType) {
-          this.logFailedOperation(
+
+        if (entityType) {
+          void this.logFailedOperation(
             request,
             user,
             entityType,
@@ -84,7 +85,7 @@ export class AuditInterceptor implements NestInterceptor {
             auditMetadata,
           );
         }
-        
+
         throw error;
       }),
     );
@@ -103,17 +104,27 @@ export class AuditInterceptor implements NestInterceptor {
     metadata?: any,
   ): Promise<void> {
     try {
-      const action = this.generateActionDescription(operation, entityType, request);
-      
+      const action = this.generateActionDescription(
+        operation,
+        entityType,
+        request,
+      );
+
+      // Handle cases where user is not available (e.g., public endpoints)
+      const userId = user?.id || user?._id || 'anonymous';
+      const username = user?.username || user?.email || 'anonymous';
+      const userEmail = user?.email || null;
+      const userRole = user?.role || 'anonymous';
+
       await this.auditService.logAudit({
         entityId: entityId || 'unknown',
         entityType,
         operation,
         action,
-        userId: user.id || user._id,
-        username: user.username || user.email,
-        userEmail: user.email,
-        userRole: user.role,
+        userId,
+        username,
+        userEmail,
+        userRole,
         ipAddress: request.ip,
         userAgent: request.get('user-agent'),
         requestId: request.headers['x-request-id'],
@@ -149,17 +160,27 @@ export class AuditInterceptor implements NestInterceptor {
     metadata?: any,
   ): Promise<void> {
     try {
-      const action = this.generateActionDescription(operation, entityType, request);
-      
+      const action = this.generateActionDescription(
+        operation,
+        entityType,
+        request,
+      );
+
+      // Handle cases where user is not available (e.g., public endpoints)
+      const userId = user?.id || user?._id || 'anonymous';
+      const username = user?.username || user?.email || 'anonymous';
+      const userEmail = user?.email || null;
+      const userRole = user?.role || 'anonymous';
+
       await this.auditService.logAudit({
         entityId: entityId || 'unknown',
         entityType,
         operation,
         action,
-        userId: user.id || user._id,
-        username: user.username || user.email,
-        userEmail: user.email,
-        userRole: user.role,
+        userId,
+        username,
+        userEmail,
+        userRole,
         ipAddress: request.ip,
         userAgent: request.get('user-agent'),
         requestId: request.headers['x-request-id'],
@@ -185,7 +206,7 @@ export class AuditInterceptor implements NestInterceptor {
 
   private extractEntityType(request: any): string {
     const url = request.originalUrl;
-    
+
     // Extract from URL patterns
     if (url.includes('/consumer-history')) return 'ConsumerHistory';
     if (url.includes('/consumer-data')) return 'ConsumerData';
@@ -194,29 +215,29 @@ export class AuditInterceptor implements NestInterceptor {
     if (url.includes('/reminders')) return 'Reminder';
     if (url.includes('/users')) return 'User';
     if (url.includes('/audit')) return 'AuditLog';
-    
+
     return 'Unknown';
   }
 
   private extractEntityId(request: any): string {
     // Try to extract ID from URL params
     if (request.params?.id) return request.params.id;
-    
+
     // Try to extract from body for create operations
     if (request.body?.id) return request.body.id;
     if (request.body?._id) return request.body._id;
-    
+
     // Generate a temporary ID for bulk operations
     if (request.method === 'POST' && request.originalUrl.includes('bulk')) {
       return `bulk_${Date.now()}`;
     }
-    
+
     return 'unknown';
   }
 
   private extractModule(request: any): string {
     const url = request.originalUrl;
-    
+
     if (url.includes('/consumer-history')) return 'CONSUMER_HISTORY';
     if (url.includes('/consumer-data')) return 'CONSUMER_DATA';
     if (url.includes('/orders')) return 'ORDERS';
@@ -225,7 +246,7 @@ export class AuditInterceptor implements NestInterceptor {
     if (url.includes('/users')) return 'USERS';
     if (url.includes('/audit')) return 'AUDIT';
     if (url.includes('/auth')) return 'AUTH';
-    
+
     return 'SYSTEM';
   }
 
@@ -252,23 +273,23 @@ export class AuditInterceptor implements NestInterceptor {
   ): string {
     const entityName = entityType.toLowerCase();
     const url = request.originalUrl;
-    
+
     if (url.includes('/bulk')) {
       return `Bulk ${operation.toLowerCase()} ${entityName} records`;
     }
-    
+
     if (url.includes('/complete')) {
       return `Completed ${entityName}`;
     }
-    
+
     if (url.includes('/reschedule')) {
       return `Rescheduled ${entityName}`;
     }
-    
+
     if (url.includes('/archive')) {
       return `Archived ${entityName}`;
     }
-    
+
     switch (operation) {
       case 'CREATE':
         return `Created new ${entityName}`;
@@ -299,28 +320,28 @@ export class AuditInterceptor implements NestInterceptor {
 
   private extractRelevantData(data: any, operation: string): any {
     if (!data) return null;
-    
+
     // For create operations, include the created data
     if (operation === 'CREATE') {
       return this.sanitizeData(data);
     }
-    
+
     // For update operations, try to extract the updated fields
     if (operation === 'UPDATE') {
       return this.sanitizeData(data);
     }
-    
+
     // For read operations, don't store the data (privacy)
     if (operation === 'READ') {
       return null;
     }
-    
+
     return null;
   }
 
   private sanitizeData(data: any): any {
     if (!data || typeof data !== 'object') return data;
-    
+
     const sensitiveFields = [
       'password',
       'token',
@@ -330,22 +351,22 @@ export class AuditInterceptor implements NestInterceptor {
       'cookie',
       'session',
     ];
-    
+
     const sanitized = { ...data };
-    
+
     // Remove sensitive fields
     sensitiveFields.forEach((field) => {
       if (sanitized[field]) {
         sanitized[field] = '[REDACTED]';
       }
     });
-    
+
     // Limit data size (prevent huge audit logs)
     const stringified = JSON.stringify(sanitized);
     if (stringified.length > 10000) {
       return { message: 'Data too large to store in audit log' };
     }
-    
+
     return sanitized;
   }
 
@@ -357,7 +378,7 @@ export class AuditInterceptor implements NestInterceptor {
       '/audit/recent', // Avoid recursive audit logging
       '/audit/stats',
     ];
-    
+
     return skipPatterns.some((pattern) => url.includes(pattern));
   }
 }

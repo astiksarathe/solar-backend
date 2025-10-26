@@ -16,7 +16,19 @@ import {
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
-// Sub-DTOs for complex nested objects
+// Sub-DTOs for complex nested objects (Order matters for dependencies)
+export class CoordinatesDto {
+  @IsNumber()
+  @Min(-90)
+  @Max(90)
+  latitude: number;
+
+  @IsNumber()
+  @Min(-180)
+  @Max(180)
+  longitude: number;
+}
+
 export class ContactDetailsDto {
   @IsOptional()
   @IsString()
@@ -77,18 +89,6 @@ export class LocationDto {
   @IsString()
   @MaxLength(200)
   parkingInfo?: string;
-}
-
-export class CoordinatesDto {
-  @IsNumber()
-  @Min(-90)
-  @Max(90)
-  latitude: number;
-
-  @IsNumber()
-  @Min(-180)
-  @Max(180)
-  longitude: number;
 }
 
 export class DocumentDto {

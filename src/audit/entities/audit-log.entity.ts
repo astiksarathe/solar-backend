@@ -31,6 +31,7 @@ export class AuditLog {
     required: true,
     enum: [
       'CREATE',
+      'READ',
       'UPDATE',
       'DELETE',
       'BULK_UPDATE',
