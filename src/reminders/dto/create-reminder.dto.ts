@@ -339,7 +339,7 @@ export class CreateReminderDto {
   @IsMongoId()
   entityId: string;
 
-  @IsEnum(['ConsumerData', 'Lead', 'Order'])
+  @IsEnum(['ConsumerData', 'Order'])
   entityModel: string;
 
   // === REMINDER DETAILS ===

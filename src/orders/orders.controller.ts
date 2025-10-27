@@ -119,20 +119,6 @@ export class OrdersController {
     return this.ordersService.findByConsumerId(consumerId);
   }
 
-  @Get('lead/:leadId')
-  @ApiOperation({ summary: 'Get orders by lead ID' })
-  @ApiParam({
-    name: 'leadId',
-    description: 'Lead ID to filter orders',
-  })
-  @ApiResponse({
-    status: 200,
-    description: 'Orders for lead retrieved successfully',
-  })
-  findByLeadId(@Param('leadId') leadId: string) {
-    return this.ordersService.findByLeadId(leadId);
-  }
-
   @Get(':id')
   @ApiOperation({ summary: 'Get order by ID' })
   @ApiParam({

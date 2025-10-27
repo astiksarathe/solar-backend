@@ -126,11 +126,11 @@ export class ConsumerData {
   })
   status: string;
 
-  /** Whether this consumer has been converted to a lead */
+  /** Whether this consumer has been converted to an active customer */
   @Prop({ default: false, index: true })
   isConverted: boolean;
 
-  /** AI/ML calculated score for lead qualification (0-100) */
+  /** AI/ML calculated score for customer qualification (0-100) */
   @Prop({ min: 0, max: 100, index: true })
   qualificationScore?: number;
 

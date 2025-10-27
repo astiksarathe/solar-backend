@@ -75,7 +75,7 @@ export class Reminder {
   entityId?: Types.ObjectId;
 
   @Prop({
-    enum: ['ConsumerData', 'Lead', 'Order'],
+    enum: ['ConsumerData', 'Order'],
     index: true,
   })
   entityModel?: string;
@@ -83,9 +83,6 @@ export class Reminder {
   // Backward compatibility fields
   @Prop({ type: Types.ObjectId, ref: 'ConsumerData', index: true })
   relatedConsumerId?: Types.ObjectId;
-
-  @Prop({ type: Types.ObjectId, ref: 'Lead', index: true })
-  relatedLeadId?: Types.ObjectId;
 
   @Prop({ type: Types.ObjectId, ref: 'Order', index: true })
   relatedOrderId?: Types.ObjectId;
@@ -227,7 +224,6 @@ ReminderSchema.index({ type: 1, status: 1 });
 ReminderSchema.index({ priority: 1, scheduledAt: 1 });
 ReminderSchema.index({ entityId: 1, entityModel: 1 });
 ReminderSchema.index({ relatedConsumerId: 1 });
-ReminderSchema.index({ relatedLeadId: 1 });
 ReminderSchema.index({ relatedOrderId: 1 });
 ReminderSchema.index({ isRecurring: 1, 'recurringPattern.frequency': 1 });
 

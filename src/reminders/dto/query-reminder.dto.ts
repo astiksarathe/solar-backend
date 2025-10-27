@@ -71,17 +71,13 @@ export class QueryReminderDto {
   entityId?: string;
 
   @IsOptional()
-  @IsEnum(['ConsumerData', 'Lead', 'Order'])
+  @IsEnum(['ConsumerData', 'Order'])
   entityModel?: string;
 
   // For backward compatibility
   @IsOptional()
   @IsString()
   relatedConsumerId?: string;
-
-  @IsOptional()
-  @IsString()
-  relatedLeadId?: string;
 
   @IsOptional()
   @IsString()

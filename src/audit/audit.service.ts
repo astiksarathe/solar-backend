@@ -660,7 +660,6 @@ export class AuditService {
       ConsumerHistory: 'CONSUMER_HISTORY',
       ConsumerData: 'CONSUMER_DATA',
       Order: 'ORDERS',
-      Lead: 'LEADS',
       Reminder: 'REMINDERS',
       User: 'USERS',
       AuditLog: 'AUDIT',

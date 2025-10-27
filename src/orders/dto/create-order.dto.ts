@@ -149,9 +149,6 @@ class PerformanceEstimatesDto {
 
 export class CreateOrderDto {
   @IsMongoId()
-  leadId: string;
-
-  @IsMongoId()
   consumerId: string;
 
   @IsString()

@@ -16,14 +16,6 @@ export class Order {
   })
   consumerId: Types.ObjectId;
 
-  @Prop({
-    type: Types.ObjectId,
-    ref: 'Lead',
-    required: true,
-    index: true,
-  })
-  leadId: Types.ObjectId;
-
   @Prop({ required: true })
   consumerNumber: string;
 
@@ -286,7 +278,6 @@ export const OrderSchema = SchemaFactory.createForClass(Order);
 // Indexes for better performance
 OrderSchema.index({ orderNumber: 1 });
 OrderSchema.index({ consumerId: 1 });
-OrderSchema.index({ leadId: 1 });
 OrderSchema.index({ status: 1, orderDate: -1 });
 OrderSchema.index({ assignedTo: 1, status: 1 });
 OrderSchema.index({ customerType: 1, status: 1 });

@@ -476,15 +476,6 @@ export class RemindersService {
       ];
     }
 
-    if (query.relatedLeadId) {
-      filter.$or = [
-        {
-          entityId: new Types.ObjectId(query.relatedLeadId),
-          entityModel: 'Lead',
-        },
-      ];
-    }
-
     if (query.relatedOrderId) {
       filter.$or = [
         {

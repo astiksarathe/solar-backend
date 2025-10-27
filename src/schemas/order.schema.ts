@@ -7,7 +7,7 @@ export type OrderDocument = Order & Document;
  * Order Schema
  *
  * This collection manages confirmed solar installation orders throughout their lifecycle.
- * Orders are created when leads are successfully converted and contain all details
+ * Orders are created from consumer data when customers are ready to proceed and contain all details
  * needed for project execution, from initial confirmation to final commissioning.
  *
  * Lifecycle: confirmed -> site_survey -> permits -> installation -> commissioning -> completed
@@ -19,16 +19,7 @@ export type OrderDocument = Order & Document;
 export class Order {
   // === REFERENCE LINKS ===
 
-  /** Reference to the lead that generated this order */
-  @Prop({
-    type: Types.ObjectId,
-    ref: 'Lead',
-    required: true,
-    index: true,
-  })
-  leadId: Types.ObjectId;
-
-  /** Reference to original consumer data (if applicable) */
+  /** Reference to original consumer data */
   @Prop({
     type: Types.ObjectId,
     ref: 'ConsumerData',

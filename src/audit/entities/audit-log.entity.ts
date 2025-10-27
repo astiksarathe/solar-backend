@@ -22,7 +22,7 @@ export class AuditLog {
   @Prop({ required: true, index: true })
   entityId: string;
 
-  /** Type/name of the entity being audited (e.g., 'ConsumerHistory', 'Order', 'Lead') */
+  /** Type/name of the entity being audited (e.g., 'ConsumerHistory', 'Order', 'ConsumerData') */
   @Prop({ required: true, trim: true, index: true })
   entityType: string;
 
@@ -135,7 +135,6 @@ export class AuditLog {
       'CONSUMER_HISTORY',
       'CONSUMER_DATA',
       'ORDERS',
-      'LEADS',
       'REMINDERS',
       'USERS',
       'AUTH',

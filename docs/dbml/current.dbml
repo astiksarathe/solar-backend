@@ -1,0 +1,274 @@
+Project solar_backend {
+  database_type: "mongodb"
+  note: "Current schema derived from Mongoose models on 2025-10-27"
+}
+
+Table consumer_data {
+  _id string [pk]
+  name string [note: "required, index"]
+  consumerNumber string [note: "required, unique"]
+  address string [note: "required"]
+  divisionName string [note: "required, index"]
+  mobileNumber string [note: "required, index"]
+  purpose string [note: "required"]
+  amount json [note: "number[12] last 12 months"]
+  last6MonthsUnits json [note: "number[12] last 12 months"]
+  avgUnits double [note: "required, index"]
+  email string
+  propertyType string [note: "enum: residential|commercial|agricultural|industrial|unknown, index"]
+  avgMonthlyBill double
+  electricityProvider string
+  connectionType string [note: "enum: flat_rate|metered|subsidized|commercial_rate|unknown"]
+  isHighConsumer bool [note: "index"]
+  source string [note: "enum: scraped|manual|imported|api, required"]
+  status string [note: "enum: new|contacted|interested|not_interested|converted|invalid, required, index"]
+  isConverted bool [note: "index"]
+  qualificationScore double [note: "index"]
+  notes json [note: "string[]"]
+  scrapingMetadata json
+  enrichmentAttempts json
+  estimatedSolarCapacity double
+  estimatedMonthlySavings double
+  estimatedPaybackMonths double
+  parsedAddress json
+  preferredLanguage string [note: "enum: hindi|english|marathi|gujarati|punjabi|tamil|telugu|bengali"]
+  bestContactTime string [note: "enum: morning|afternoon|evening|any"]
+  createdAt datetime
+  updatedAt datetime
+}
+
+Table leads {
+  _id string [pk]
+  consumerId string [ref: > consumer_data._id]
+  consumerNumber string
+  customerName string
+  phoneNumber string
+  emailAddress string
+  address string
+  location json
+  status string [note: "enum: new|contacted|qualified|proposal_sent|negotiation|closed_won|closed_lost, index"]
+  priority string [note: "enum: low|medium|high|urgent, index"]
+  interestLevel string [note: "enum: not_interested|interested|very_interested|ready_to_buy|needs_time|price_negotiation, index"]
+  estimatedBudget double
+  systemSize string
+  rooftopArea double
+  monthlyElectricityBill double
+  averageMonthlyUnits double
+  customerType string [note: "enum: residential|commercial|industrial, index"]
+  expectedClosingDate datetime
+  lastContactDate datetime
+  nextFollowUpDate datetime
+  leadSource string
+  leadType string [note: "enum: consumer_data|direct_inquiry|marketing|referral|cold_call|trade_show|walk_in|self, required, index"]
+  referredBy string
+  assignedTo string [ref: > users._id]
+  createdBy string [ref: > users._id]
+  updatedBy string [ref: > users._id]
+  notes string
+  tags json [note: "string[]"]
+  proposalDetails json
+  customFields json
+  convertedToOrderDate datetime
+  orderId string [ref: > orders._id]
+  createdAt datetime
+  updatedAt datetime
+}
+
+Table orders {
+  _id string [pk]
+  leadId string [ref: > leads._id]
+  consumerDataId string [ref: > consumer_data._id]
+  orderNumber string [note: "required, unique, index"]
+  financialYear string [note: "required, index"]
+  customer json [note: "{name, consumerNumber?, phone, email?, alternatePhone?, customerType} (enum: residential|commercial|agricultural|industrial)"]
+  installationAddress json
+  billingAddress json
+  status string [note: "enum lifecycle, index"]
+  cancellationReason string
+  cancelledAt datetime
+  currentConsumption json
+  systemDetails json [note: "required"]
+  costBreakdown json [note: "required"]
+  subsidies json
+  payments json [note: "required, includes schedule[] and totals"]
+  timeline json [note: "required, milestone dates"]
+  team json [note: "required"]
+  documents json [note: "array of documents"]
+  quality json
+  warranty json
+  maintenance json
+  monitoring json
+  tags json [note: "string[], index"]
+  specialRequirements json [note: "string[]"]
+  notes json [note: "string[]"]
+  customFields json
+  createdBy string
+  updatedBy string
+  createdAt datetime
+  updatedAt datetime
+}
+
+Table reminders {
+  _id string [pk]
+  entityId string [note: "polymorphic ref to ConsumerData|Lead|Order"]
+  entityModel string [note: "enum: ConsumerData|Lead|Order, index"]
+  type string [note: "enum types, index"]
+  scheduledAt datetime [note: "index"]
+  title string
+  description string
+  assignedTo string [note: "index, user id string"]
+  department string [note: "enum, index"]
+  status string [note: "enum, index"]
+  completedAt datetime
+  completionNotes string
+  outcome string
+  priority string [note: "enum, index"]
+  isCritical bool [note: "index"]
+  contactDetails json
+  location json
+  communicationHistory json
+  documents json
+  originalScheduledAt datetime
+  rescheduledFrom datetime
+  rescheduleReason string
+  rescheduleCount double
+  rescheduleHistory json
+  isRecurring bool [note: "index"]
+  recurringPattern json
+  parentReminderId string [ref: > reminders._id]
+  recurringSequence double
+  notifications json
+  notificationIntervals json [note: "number[]"]
+  notificationHistory json
+  expectedDuration double
+  actualDuration double
+  cost json
+  preparationItems json
+  teamMembers json
+  followUpActions json
+  externalCalendarEventId string
+  integrations json
+  weatherDependent bool
+  weatherRequirements json
+  weatherInfo json
+  qualityRating double
+  qualityChecklist json
+  customerFeedback json
+  tags json [note: "string[], index"]
+  category string [note: "index"]
+  businessImpact string
+  customFields json
+  createdBy string
+  updatedBy string
+  completedBy string
+  createdAt datetime
+  updatedAt datetime
+}
+
+Table users {
+  _id string [pk]
+  email string [note: "unique, lowercase"]
+  username string [note: "unique"]
+  password string
+  role string [note: "enum: user|admin|manager|sales|technician"]
+  status string [note: "enum: active|inactive|suspended|pending"]
+  firstName string
+  lastName string
+  phone string
+  lastLogin datetime
+  emailVerified bool
+  permissions json [note: "string[]"]
+  createdAt datetime
+  updatedAt datetime
+  metadata json
+}
+
+Table consumer_histories {
+  _id string [pk]
+  consumerId string [ref: > consumer_data._id]
+  consumerNumber string
+  interactionType string [note: "enum"]
+  status string [note: "enum"]
+  title string
+  description string
+  notes string
+  scheduledDate datetime
+  completedDate datetime
+  duration double
+  location string
+  contactPerson string
+  phoneNumber string
+  emailAddress string
+  interestLevel string [note: "enum"]
+  nextFollowUp datetime
+  estimatedBudget double
+  systemSize string
+  attachments json [note: "string[]"]
+  assignedTo string [ref: > users._id]
+  createdBy string [ref: > users._id]
+  updatedBy string [ref: > users._id]
+  customFields json
+  priority string [note: "enum"]
+  outcome string [note: "enum"]
+  tags json [note: "string[]"]
+  createdAt datetime
+  updatedAt datetime
+}
+
+Table audit_logs {
+  _id string [pk]
+  entityId string [note: "indexed"]
+  entityType string [note: "indexed"]
+  operation string [note: "enum, index"]
+  action string
+  description string
+  userId string [note: "indexed (string id)"]
+  username string [note: "indexed"]
+  userEmail string
+  userRole string
+  oldValues json
+  newValues json
+  changedFields json [note: "string[]"]
+  delta json
+  ipAddress string
+  userAgent string
+  requestId string
+  sessionId string
+  endpoint string
+  httpMethod string
+  module string [note: "enum, index"]
+  subModule string
+  reason string
+  priority string [note: "enum, index"]
+  category string [note: "enum, index"]
+  tags json [note: "string[], index"]
+  metadata json
+  relatedAuditIds json [note: "string[]"]
+  batchId string [note: "index"]
+  transactionId string
+  isComplianceRequired bool [note: "index"]
+  retentionDays double
+  expiryDate datetime [note: "index, ttl"]
+  isArchived bool [note: "index"]
+  executionTime double
+  memoryUsage double
+  isSuccessful bool [note: "index"]
+  errorMessage string
+  errorStack string
+  location json
+  searchText string
+  checksum string
+  createdAt datetime
+  updatedAt datetime
+}
+
+// Relationships
+Ref: leads.consumerId > consumer_data._id
+Ref: orders.leadId > leads._id
+Ref: orders.consumerDataId > consumer_data._id
+Ref: consumer_histories.assignedTo > users._id
+Ref: consumer_histories.createdBy > users._id
+Ref: consumer_histories.updatedBy > users._id
+
+// Polymorphic notes
+// reminders.entityId refers to one of ConsumerData|Lead|Order based on reminders.entityModel.

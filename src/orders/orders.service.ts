@@ -79,7 +79,6 @@ export class OrdersService {
         .sort(sortOptions)
         .skip(skip)
         .limit(Number(limit))
-        .populate('leadId', 'customerName status')
         .populate('consumerId', 'name phone email')
         .populate('assignedTo', 'name email')
         .populate('createdBy', 'name email')
@@ -99,7 +98,6 @@ export class OrdersService {
   async findOne(id: string): Promise<Order> {
     const order = await this.orderModel
       .findById(id)
-      .populate('leadId', 'customerName status interestLevel')
       .populate('consumerId', 'name phone email address')
       .populate('assignedTo', 'name email')
       .populate('createdBy', 'name email')
@@ -117,17 +115,6 @@ export class OrdersService {
     return this.orderModel
       .find({ consumerId })
       .sort({ createdAt: -1 })
-      .populate('leadId', 'customerName status')
-      .populate('assignedTo', 'name email')
-      .populate('createdBy', 'name email')
-      .exec();
-  }
-
-  async findByLeadId(leadId: string): Promise<Order[]> {
-    return this.orderModel
-      .find({ leadId })
-      .sort({ createdAt: -1 })
-      .populate('consumerId', 'name phone email')
       .populate('assignedTo', 'name email')
       .populate('createdBy', 'name email')
       .exec();
@@ -140,7 +127,6 @@ export class OrdersService {
         { ...updateOrderDto, updatedAt: new Date() },
         { new: true, runValidators: true },
       )
-      .populate('leadId', 'customerName status')
       .populate('consumerId', 'name phone email')
       .populate('assignedTo', 'name email')
       .populate('createdBy', 'name email')
