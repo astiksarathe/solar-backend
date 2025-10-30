@@ -13,6 +13,7 @@ import { OrdersModule } from './orders/orders.module';
 import { RemindersModule } from './reminders/reminders.module';
 import { AuditModule } from './audit/audit.module';
 import { AuditInterceptor } from './audit/interceptors/audit.interceptor';
+import { SolarProjectModule } from './solar-project/solar-project.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { AuditInterceptor } from './audit/interceptors/audit.interceptor';
     OrdersModule,
     RemindersModule,
     AuditModule,
+    SolarProjectModule,
   ],
   controllers: [AppController],
   providers: [
