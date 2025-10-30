@@ -9,7 +9,6 @@ import { HttpModule } from '@nestjs/axios';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { ConsumerDataModule } from './consumer-data/consumer-data.module';
-import { ConsumerHistoryModule } from './consumer-history/consumer-history.module';
 import { OrdersModule } from './orders/orders.module';
 import { RemindersModule } from './reminders/reminders.module';
 import { AuditModule } from './audit/audit.module';
@@ -33,7 +32,6 @@ import { AuditInterceptor } from './audit/interceptors/audit.interceptor';
     AuthModule,
     UserModule,
     ConsumerDataModule,
-    ConsumerHistoryModule,
     OrdersModule,
     RemindersModule,
     AuditModule,
