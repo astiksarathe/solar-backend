@@ -34,7 +34,44 @@ export class SolarProjectService {
     createSolarProjectDto: CreateSolarProjectDto,
   ): Promise<SolarProjectResponseDto> {
     try {
-      const project = new this.solarProjectModel(createSolarProjectDto);
+      // Extract amount and units from billHistory if present
+      let amount: number[] = [];
+      let units: number[] = [];
+      if (Array.isArray((createSolarProjectDto as any).billHistory)) {
+        amount = (createSolarProjectDto as any).billHistory.map((bill: any) => Number(bill.amount));
+        units = (createSolarProjectDto as any).billHistory.map((bill: any) => Number(bill.consumption));
+      }
+
+      // Calculate averages
+      const validAmounts = amount.filter(a => typeof a === 'number');
+      const avgMonthlyBill = validAmounts.length > 0
+        ? validAmounts.reduce((sum, amt) => sum + amt, 0) / validAmounts.length
+        : undefined;
+
+      const validUnits = units.filter(u => typeof u === 'number');
+      const avgUnits = validUnits.length > 0
+        ? validUnits.reduce((sum, unit) => sum + unit, 0) / validUnits.length
+        : undefined;
+
+      // Initial timeline entry
+      const timeline = [
+        {
+          date: new Date(),
+          type: 'record_add',
+          message: 'Record created',
+        },
+      ];
+
+      // Prepare payload
+      const payload = {
+        ...createSolarProjectDto,
+        amount,
+        units,
+        avgMonthlyBill,
+        avgUnits,
+        timeline,
+      };
+      const project = new this.solarProjectModel(payload);
       const saved = await project.save();
       return this.transformToResponse(saved);
     } catch (error: any) {
@@ -201,16 +238,16 @@ export class SolarProjectService {
    * Transform document to response DTO
    */
   private transformToResponse(
-    document: SolarProjectDocument,
+    document: Partial<SolarProject> & { _id: any },
   ): SolarProjectResponseDto {
     return {
-      _id: document._id.toString(),
-      name: document.name,
-      consumerNumber: document.consumerNumber,
-      address: document.address,
-      divisionName: document.divisionName,
-      mobileNumber: document.mobileNumber,
-      purpose: document.purpose,
+      _id: document._id?.toString(),
+      name: document.name || '',
+      consumerNumber: document.consumerNumber || '',
+      address: document.address || '',
+      divisionName: document.divisionName || '',
+      mobileNumber: document.mobileNumber || '',
+      purpose: document.purpose || '',
       amount: document.amount,
       avgMonthlyBill: document.avgMonthlyBill,
       propertyType: document.propertyType,

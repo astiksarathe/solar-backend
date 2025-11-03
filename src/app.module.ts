@@ -8,12 +8,11 @@ import { ElectricityBillModule } from './electricity-bill/electricity-bill.modul
 import { HttpModule } from '@nestjs/axios';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
-import { ConsumerDataModule } from './consumer-data/consumer-data.module';
 import { OrdersModule } from './orders/orders.module';
-import { RemindersModule } from './reminders/reminders.module';
 import { AuditModule } from './audit/audit.module';
 import { AuditInterceptor } from './audit/interceptors/audit.interceptor';
 import { SolarProjectModule } from './solar-project/solar-project.module';
+import { ReminderModule } from './reminder/reminder.module';
 
 @Module({
   imports: [
@@ -32,11 +31,10 @@ import { SolarProjectModule } from './solar-project/solar-project.module';
     HttpModule,
     AuthModule,
     UserModule,
-    ConsumerDataModule,
     OrdersModule,
-    RemindersModule,
     AuditModule,
     SolarProjectModule,
+    ReminderModule,
   ],
   controllers: [AppController],
   providers: [

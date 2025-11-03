@@ -176,7 +176,6 @@ export class CreateAuditLogDto {
 
   @ApiPropertyOptional({
     description: 'API endpoint that was called',
-    example: '/api/consumer-history/675b8e5a1234567890abcdef',
   })
   @IsOptional()
   @IsString()

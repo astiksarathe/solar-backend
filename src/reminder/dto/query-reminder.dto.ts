@@ -8,73 +8,86 @@ import {
   IsMongoId,
   Min,
   Max,
+  IsIn,
 } from 'class-validator';
 import { Type, Transform } from 'class-transformer';
 
+// === ENUMS FOR SAFER VALIDATION ===
+export enum ReminderType {
+  CALL = 'call',
+  WHATSAPP = 'whatsapp',
+  EMAIL = 'email',
+  MEETING = 'meeting',
+  SITE_VISIT = 'site_visit',
+  PROPOSAL_FOLLOWUP = 'proposal_followup',
+  DOCUMENT_COLLECTION = 'document_collection',
+  INSTALLATION_SCHEDULE = 'installation_schedule',
+  PAYMENT_FOLLOWUP = 'payment_followup',
+  SURVEY = 'survey',
+  DELIVERY = 'delivery',
+  MAINTENANCE = 'maintenance',
+  TRAINING = 'training',
+  INSPECTION = 'inspection',
+  WARRANTY_CHECK = 'warranty_check',
+  OTHER = 'other',
+}
+
+export enum ReminderStatus {
+  PENDING = 'pending',
+  COMPLETED = 'completed',
+  CANCELLED = 'cancelled',
+  RESCHEDULED = 'rescheduled',
+  IN_PROGRESS = 'in_progress',
+  OVERDUE = 'overdue',
+  ON_HOLD = 'on_hold',
+}
+
+export enum Priority {
+  LOW = 'low',
+  MEDIUM = 'medium',
+  HIGH = 'high',
+  URGENT = 'urgent',
+}
+
+export enum Department {
+  SALES = 'sales',
+  TECHNICAL = 'technical',
+  INSTALLATION = 'installation',
+  ADMIN = 'admin',
+  MANAGEMENT = 'management',
+  SUPPORT = 'support',
+}
+
+// === MAIN QUERY DTO ===
 export class QueryReminderDto {
-  // === BASIC FILTERS ===
   @IsOptional()
-  @IsEnum([
-    'call',
-    'whatsapp',
-    'email',
-    'meeting',
-    'site_visit',
-    'proposal_followup',
-    'document_collection',
-    'installation_schedule',
-    'payment_followup',
-    'survey',
-    'delivery',
-    'maintenance',
-    'training',
-    'inspection',
-    'warranty_check',
-    'other',
-  ])
-  type?: string;
+  @IsEnum(ReminderType)
+  type?: ReminderType;
 
   @IsOptional()
-  @IsEnum([
-    'pending',
-    'completed',
-    'cancelled',
-    'rescheduled',
-    'in_progress',
-    'overdue',
-    'on_hold',
-  ])
-  status?: string;
+  @IsEnum(ReminderStatus)
+  status?: ReminderStatus;
 
   @IsOptional()
-  @IsEnum(['low', 'medium', 'high', 'urgent'])
-  priority?: string;
+  @IsEnum(Priority)
+  priority?: Priority;
 
   @IsOptional()
   @IsString()
   assignedTo?: string;
 
   @IsOptional()
-  @IsEnum([
-    'sales',
-    'technical',
-    'installation',
-    'admin',
-    'management',
-    'support',
-  ])
-  department?: string;
+  @IsEnum(Department)
+  department?: Department;
 
-  // === ENTITY FILTERS ===
   @IsOptional()
   @IsMongoId()
   entityId?: string;
 
   @IsOptional()
-  @IsEnum(['ConsumerData', 'Order'])
+  @IsIn(['ConsumerData', 'Order'])
   entityModel?: string;
 
-  // For backward compatibility
   @IsOptional()
   @IsString()
   relatedConsumerId?: string;
@@ -83,7 +96,6 @@ export class QueryReminderDto {
   @IsString()
   relatedOrderId?: string;
 
-  // === DATE FILTERS ===
   @IsOptional()
   @IsDateString()
   fromDate?: string;
@@ -108,7 +120,6 @@ export class QueryReminderDto {
   @IsDateString()
   createdToDate?: string;
 
-  // === ADVANCED FILTERS ===
   @IsOptional()
   @Transform(({ value }) => value === 'true')
   isCritical?: boolean;
@@ -122,19 +133,11 @@ export class QueryReminderDto {
   weatherDependent?: boolean;
 
   @IsOptional()
-  @IsEnum([
-    'successful',
-    'partial',
-    'failed',
-    'no_response',
-    'rescheduled',
-    'cancelled',
-    'no_show',
-  ])
+  @IsString()
   outcome?: string;
 
   @IsOptional()
-  @IsEnum(['low', 'medium', 'high', 'critical'])
+  @IsString()
   businessImpact?: string;
 
   @IsOptional()
@@ -143,7 +146,7 @@ export class QueryReminderDto {
 
   @IsOptional()
   @IsString()
-  tags?: string; // Comma-separated tags
+  tags?: string;
 
   @IsOptional()
   @IsString()
@@ -153,9 +156,8 @@ export class QueryReminderDto {
   @IsString()
   completedBy?: string;
 
-  // === COMMUNICATION FILTERS ===
   @IsOptional()
-  @IsEnum(['call', 'email', 'whatsapp', 'sms', 'meeting', 'visit'])
+  @IsIn(['call', 'email', 'whatsapp', 'sms', 'meeting', 'visit'])
   communicationType?: string;
 
   @IsOptional()
@@ -174,14 +176,15 @@ export class QueryReminderDto {
   @Transform(({ value }) => value === 'true')
   hasTeamMembers?: boolean;
 
-  // === QUALITY FILTERS ===
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(1)
   @Max(5)
   minQualityRating?: number;
 
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(1)
   @Max(5)
@@ -191,39 +194,42 @@ export class QueryReminderDto {
   @Transform(({ value }) => value === 'true')
   hasCustomerFeedback?: boolean;
 
-  // === RESCHEDULING FILTERS ===
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   minRescheduleCount?: number;
 
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   maxRescheduleCount?: number;
 
-  // === DURATION FILTERS ===
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   minExpectedDuration?: number;
 
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   maxExpectedDuration?: number;
 
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   minActualDuration?: number;
 
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(0)
   maxActualDuration?: number;
 
-  // === OVERDUE FILTERS ===
   @IsOptional()
   @Transform(({ value }) => value === 'true')
   overdue?: boolean;
@@ -240,10 +246,9 @@ export class QueryReminderDto {
   @Transform(({ value }) => value === 'true')
   dueThisWeek?: boolean;
 
-  // === SEARCH ===
   @IsOptional()
   @IsString()
-  search?: string; // Full-text search across title, description, notes
+  search?: string;
 
   @IsOptional()
   @IsString()
@@ -257,23 +262,21 @@ export class QueryReminderDto {
   @IsString()
   customerEmail?: string;
 
-  // === PAGINATION ===
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(1)
-  page?: number = 1;
+  page: number = 1;
 
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(1)
   @Max(100)
-  limit?: number = 10;
+  limit: number = 10;
 
-  // === SORTING ===
   @IsOptional()
-  @IsEnum([
+  @IsIn([
     'scheduledAt',
     'priority',
     'title',
@@ -289,38 +292,38 @@ export class QueryReminderDto {
     'expectedDuration',
     'actualDuration',
   ])
-  sortBy?: string = 'scheduledAt';
+  sortBy: string = 'scheduledAt';
 
   @IsOptional()
-  @IsEnum(['asc', 'desc'])
-  sortOrder?: string = 'asc';
-
-  // === AGGREGATION OPTIONS ===
-  @IsOptional()
-  @Transform(({ value }) => value === 'true')
-  includeStats?: boolean = false;
+  @IsIn(['asc', 'desc'])
+  sortOrder: string = 'asc';
 
   @IsOptional()
   @Transform(({ value }) => value === 'true')
-  includeCommunicationHistory?: boolean = false;
+  includeStats: boolean = false;
 
   @IsOptional()
   @Transform(({ value }) => value === 'true')
-  includeDocuments?: boolean = false;
+  includeCommunicationHistory?: boolean;
 
   @IsOptional()
   @Transform(({ value }) => value === 'true')
-  includeFollowUpActions?: boolean = false;
+  includeDocuments?: boolean;
 
   @IsOptional()
   @Transform(({ value }) => value === 'true')
-  includeWeatherInfo?: boolean = false;
+  includeFollowUpActions?: boolean;
 
   @IsOptional()
   @Transform(({ value }) => value === 'true')
-  includeQualityMetrics?: boolean = false;
+  includeWeatherInfo?: boolean;
+
+  @IsOptional()
+  @Transform(({ value }) => value === 'true')
+  includeQualityMetrics?: boolean;
 }
 
+// === REMINDER STATS DTO ===
 export class ReminderStatsQueryDto {
   @IsOptional()
   @IsString()
@@ -339,56 +342,26 @@ export class ReminderStatsQueryDto {
   toDate?: string;
 
   @IsOptional()
-  @IsEnum(['day', 'week', 'month', 'quarter', 'year'])
-  groupBy?: string = 'day';
+  @IsIn(['day', 'week', 'month', 'quarter', 'year'])
+  groupBy: string = 'day';
 
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  metrics?: string[]; // ['count', 'completion_rate', 'avg_duration', 'quality_rating']
+  metrics?: string[];
 
   @IsOptional()
   @IsArray()
-  @IsEnum(['call', 'whatsapp', 'email', 'meeting', 'site_visit', 'other'], {
-    each: true,
-  })
-  types?: string[];
+  @IsEnum(ReminderType, { each: true })
+  types?: ReminderType[];
 
   @IsOptional()
   @IsArray()
-  @IsEnum(['pending', 'completed', 'cancelled', 'rescheduled', 'overdue'], {
-    each: true,
-  })
-  statuses?: string[];
+  @IsEnum(ReminderStatus, { each: true })
+  statuses?: ReminderStatus[];
 }
 
-export class ReminderAnalyticsQueryDto {
-  @IsOptional()
-  @IsDateString()
-  fromDate?: string;
-
-  @IsOptional()
-  @IsDateString()
-  toDate?: string;
-
-  @IsOptional()
-  @IsString()
-  assignedTo?: string;
-
-  @IsOptional()
-  @IsString()
-  department?: string;
-
-  @IsOptional()
-  @IsEnum(['daily', 'weekly', 'monthly'])
-  period?: string = 'daily';
-
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  includeMetrics?: string[]; // ['productivity', 'quality', 'communication', 'scheduling']
-}
-
+// === UPCOMING REMINDERS DTO ===
 export class UpcomingRemindersQueryDto {
   @IsOptional()
   @IsString()
@@ -399,18 +372,19 @@ export class UpcomingRemindersQueryDto {
   department?: string;
 
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(1)
   @Max(30)
-  days?: number = 7; // Next N days
+  days: number = 7;
 
   @IsOptional()
-  @IsEnum(['low', 'medium', 'high', 'urgent'])
-  minPriority?: string;
+  @IsEnum(Priority)
+  minPriority?: Priority;
 
   @IsOptional()
   @Transform(({ value }) => value === 'true')
-  criticalOnly?: boolean = false;
+  criticalOnly?: boolean;
 
   @IsOptional()
   @Transform(({ value }) => value === 'true')
@@ -421,9 +395,10 @@ export class UpcomingRemindersQueryDto {
   @IsNumber()
   @Min(1)
   @Max(100)
-  limit?: number = 50;
+  limit: number = 50;
 }
 
+// === OVERDUE REMINDERS DTO ===
 export class OverdueRemindersQueryDto {
   @IsOptional()
   @IsString()
@@ -434,19 +409,20 @@ export class OverdueRemindersQueryDto {
   department?: string;
 
   @IsOptional()
+  @Type(() => Number)
   @IsNumber()
   @Min(1)
   @Max(365)
-  daysPastDue?: number; // More than N days overdue
+  daysPastDue?: number;
 
   @IsOptional()
-  @IsEnum(['low', 'medium', 'high', 'urgent'])
-  minPriority?: string;
+  @IsEnum(Priority)
+  minPriority?: Priority;
 
   @IsOptional()
   @Type(() => Number)
   @IsNumber()
   @Min(1)
   @Max(100)
-  limit?: number = 50;
+  limit: number = 50;
 }

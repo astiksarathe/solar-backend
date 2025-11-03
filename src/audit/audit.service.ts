@@ -657,7 +657,6 @@ export class AuditService {
    */
   private mapEntityTypeToModule(entityType: string): string {
     const mapping: Record<string, string> = {
-      ConsumerHistory: 'CONSUMER_HISTORY',
       ConsumerData: 'CONSUMER_DATA',
       Order: 'ORDERS',
       Reminder: 'REMINDERS',

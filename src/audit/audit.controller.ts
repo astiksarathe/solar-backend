@@ -169,8 +169,8 @@ export class AuditController {
   })
   @ApiParam({
     name: 'entityType',
-    description: 'Type of entity (e.g., ConsumerHistory, Order)',
-    example: 'ConsumerHistory',
+  description: 'Type of entity (e.g., Order)',
+  example: 'Order',
   })
   @ApiParam({
     name: 'entityId',

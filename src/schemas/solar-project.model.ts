@@ -6,19 +6,19 @@ export type SolarProjectDocument = SolarProject & Document;
 @Schema({ timestamps: true, collection: 'solar_projects' })
 export class SolarProject {
   // === BASIC INFO ===
-  @Prop({ required: true, trim: true })
+  @Prop({ trim: true })
   name: string;
 
-  @Prop({ required: true, unique: true, trim: true, uppercase: true })
+  @Prop({ unique: true, trim: true, uppercase: true })
   consumerNumber: string;
 
   @Prop({ required: true })
   address: string;
 
-  @Prop({ required: true, trim: true })
+  @Prop({ trim: true })
   divisionName: string;
 
-  @Prop({ required: true, trim: true })
+  @Prop({ trim: true })
   mobileNumber: string;
 
   @Prop({ trim: true })
@@ -128,6 +128,7 @@ export class SolarProject {
           enum: [
             'status_change',
             'note',
+            'record_add',
             'reminder',
             'follow_up',
             'proposal_update',
@@ -190,30 +191,9 @@ SolarProjectSchema.index(
     name: 'solar_project_search_index',
   },
 );
-//
-// === PRE-SAVE MIDDLEWARE ===
-//
+
+
 SolarProjectSchema.pre('save', function (next) {
-  // Calculate average monthly bill
-  if (this.amount && this.amount.length > 0) {
-    const validAmounts = this.amount.filter(
-      (a) => typeof a === 'number' && a > 0,
-    );
-    if (validAmounts.length > 0) {
-      this.avgMonthlyBill =
-        validAmounts.reduce((sum, amt) => sum + amt, 0) / validAmounts.length;
-    }
-  }
-
-  // Calculate average units
-  if (this.units && this.units.length > 0) {
-    const validUnits = this.units.filter((u) => typeof u === 'number' && u > 0);
-    if (validUnits.length > 0) {
-      this.avgUnits =
-        validUnits.reduce((sum, unit) => sum + unit, 0) / validUnits.length;
-    }
-  }
-
   // Derive property type from purpose if not set or unknown
   if (!this.propertyType || this.propertyType === 'unknown') {
     const purpose = (this.purpose || '').toLowerCase();
@@ -246,7 +226,7 @@ SolarProjectSchema.pre('save', function (next) {
       newStatus: this.status,
     });
   }
-
+  console.log('Pre-save middleware executed for solar project:', this);
   next();
 });
 

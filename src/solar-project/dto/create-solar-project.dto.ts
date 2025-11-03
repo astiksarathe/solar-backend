@@ -4,6 +4,7 @@ import {
   IsArray,
   IsNumber,
   IsBoolean,
+  ValidateNested,
 } from 'class-validator';
 
 export class CreateSolarProjectDto {
@@ -55,4 +56,9 @@ export class CreateSolarProjectDto {
   @IsOptional()
   @IsString()
   assignedTo?: string;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  billHistory?: any[];
 }

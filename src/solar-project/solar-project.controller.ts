@@ -16,7 +16,7 @@ import {
   UpdateSolarProjectDto,
   QuerySolarProjectDto,
   SolarProjectResponseDto,
-} from './dto/index.dto';
+} from './dto';
 
 @Controller('solar-project')
 export class SolarProjectController {

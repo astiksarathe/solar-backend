@@ -207,8 +207,6 @@ export class AuditInterceptor implements NestInterceptor {
   private extractEntityType(request: any): string {
     const url = request.originalUrl;
 
-    // Extract from URL patterns
-    if (url.includes('/consumer-history')) return 'ConsumerHistory';
     if (url.includes('/consumer-data')) return 'ConsumerData';
     if (url.includes('/orders')) return 'Order';
     if (url.includes('/leads')) return 'Lead';
@@ -238,7 +236,6 @@ export class AuditInterceptor implements NestInterceptor {
   private extractModule(request: any): string {
     const url = request.originalUrl;
 
-    if (url.includes('/consumer-history')) return 'CONSUMER_HISTORY';
     if (url.includes('/consumer-data')) return 'CONSUMER_DATA';
     if (url.includes('/orders')) return 'ORDERS';
     if (url.includes('/leads')) return 'LEADS';

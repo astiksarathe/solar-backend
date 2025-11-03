@@ -26,7 +26,6 @@ export interface AuditOptions {
  * @example
  * ```typescript
  * @Audit({
- *   entityType: 'ConsumerHistory',
  *   module: 'CONSUMER_HISTORY',
  *   priority: 'HIGH'
  * })
